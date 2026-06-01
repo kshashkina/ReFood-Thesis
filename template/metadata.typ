@@ -28,10 +28,10 @@
 // Metadata of the document
 //
 #let doc= (
-  title    : "Capstone Project Template",
-  subtitle : "Longer Subtitle",
+  title    : "ReFood",
+  subtitle : "Design and Implementation of a Native iOS Application for Product Composition Analysis and Waste Sorting Optimization.",
   author: (
-    name        : "Firstname Lastname",
+    name        : "Kateryna Shashkina & Yaroslava Mala",
     email       : "firstname.lastname@kse.org.ua",
     degree      : "Bachelor",
     affiliation : "KSE",

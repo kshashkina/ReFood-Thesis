@@ -19,24 +19,3 @@ In this section you turn your requirements into a concrete engineering blueprint
 By walking through Requirements → Decisions → Diagrams → Topology, your Design section becomes a rigorous, evidence-backed foundation for the implementation that follows.  
 
 ]
-
-#lorem(50)
-
-#add-chapter(
-  after: <sec:design>,
-  before: <sec:impl>,
-  minitoc-title: i18n("toc-title", lang: option.lang)
-)[
-  #pagebreak()
-  == Section 1
-
-  #lorem(50)
-
-  == Section 2
-
-  #lorem(50)
-
-  == Conclusion
-
-  #lorem(50)
-]
