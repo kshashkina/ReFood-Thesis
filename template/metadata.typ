@@ -39,7 +39,7 @@
     url         : "https://synd.hevs.io",
     signature   : image("/resources/img/signature.svg", width:3cm),
   ),
-  keywords : ("KSE", "Software Engineering", "Thesis", "Template"),
+  keywords : ("KSE", "Software Engineering", "ReFood", "IOS Mobile Application", "FoodTech", "Barcode Scanning", "Nutritional Analysis", "Artificial Intelligence", "Waste Sorting", "Food Transparency"),
   version  : "v0.1.0",
 )
 

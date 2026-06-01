@@ -3,7 +3,7 @@
 
 #pagebreak()
 = Research
-== Domain Оverview
+== Domain Overview
 
 Today's eating habits harm both human health and the environment. Eating many processed foods leads to obesity and other related health problems @benthem2024. Industrial food production also contributes to biodiversity loss, water shortages, climate change, and increasing amounts of packaging waste @benthem2024. Plastic recycling rates remain low, ranging from 4% to 32% depending on the region. Many consumers struggle with proper waste sorting, and more than half of them do not correctly understand recycling labels. Among those who are unsure, approximately 42% dispose of packaging incorrectly, contaminating recyclable materials, while 22% do not recycle at all @scott2023.
 
@@ -49,9 +49,9 @@ Uniquely, OFF also integrates environmental indicators: it calculates the Eco-Sc
 
 === Yuka
 
-Yuka is one of the most popular mobile product scanners, launched in France (2017) and currently has over 80 million users worldwide. Yuka scans both food and cosmetics, “decoding” their composition and assessing their impact on health on a simple scale. Each product is assigned a score of 0 - 100 points and a color indicator that reflects the degree of risk. The Yuka rating formula is built as follows: 60% of the score depends on nutritional value, 30% on the presence of harmful additives, and 10% on organic quality.
+Yuka is one of the most popular mobile product scanners, launched in France (2017) and currently has over 80 million users worldwide. Yuka scans both food and cosmetics, "decoding" their composition and assessing their impact on health on a simple scale. Each product is assigned a score of 0 - 100 points and a color indicator that reflects the degree of risk. The Yuka rating formula is built as follows: 60% of the score depends on nutritional value, 30% on the presence of harmful additives, and 10% on organic quality.
 
-Yuka’s interface is very user-friendly: after scanning, you can see a short verdict and a list of reasons. The application also offers healthier alternatives: if a product has received a low score, Yuka will show similar products with a better rating. For cosmetics, Yuka highlights dangerous ingredients and also gives a safety rating. It is important that the project declares 100% independence. That means that Yuka does not show advertising and does not cooperate with manufacturers, so brands cannot influence the ratings or buy promotions. Monetization is carried out through a premium subscription and the release of its own products, like a recipe book @yuka2025
+Yuka's interface is very user-friendly: after scanning, you can see a short verdict and a list of reasons. The application also offers healthier alternatives: if a product has received a low score, Yuka will show similar products with a better rating. For cosmetics, Yuka highlights dangerous ingredients and also gives a safety rating. It is important that the project declares 100% independence. That means that Yuka does not show advertising and does not cooperate with manufacturers, so brands cannot influence the ratings or buy promotions. Monetization is carried out through a premium subscription and the release of its own products, like a recipe book @yuka2025
 
 *Advantages*
 
@@ -82,7 +82,7 @@ Yuka’s interface is very user-friendly: after scanning, you can see a short ve
 
 === Fooducate
 
-Fooducate is one of the first mobile apps in this area (launched in 2010 in the US). It was initially positioned as a personal nutritionist on your phone. Fooducate allows you to scan products and get a letter grade from A (best) to D or F (worst) - similar to school grades. The algorithm mainly takes into account nutritional content: the ratio of calories, sugar, fats, proteins, etc. For example, fried potatoes get a “C” for high calories and low protein, while an apple gets an “A” as a fortified low-calorie product. If a product gets a bad rating, Fooducate offers alternatives - other products in the same category with a higher rating. Many users noted that this feature helped them decide what to buy instead of a harmful option, right when going to the store. Unlike Yuka, Fooducate has an advanced calorie and physical activity tracker. The user can keep a food diary, set weight goals, track calories, and BV. The application provides tips, recipes, and supports the community - there are forums where participants share progress. Thus, Fooducate is focused on long-term improvement of eating habits and weight loss @chaudhry2019
+Fooducate is one of the first mobile apps in this area (launched in 2010 in the US). It was initially positioned as a personal nutritionist on your phone. Fooducate allows you to scan products and get a letter grade from A (best) to D or F (worst) - similar to school grades. The algorithm mainly takes into account nutritional content: the ratio of calories, sugar, fats, proteins, etc. For example, fried potatoes get a "C" for high calories and low protein, while an apple gets an "A" as a fortified low-calorie product. If a product gets a bad rating, Fooducate offers alternatives - other products in the same category with a higher rating. Many users noted that this feature helped them decide what to buy instead of a harmful option, right when going to the store. Unlike Yuka, Fooducate has an advanced calorie and physical activity tracker. The user can keep a food diary, set weight goals, track calories, and BV. The application provides tips, recipes, and supports the community - there are forums where participants share progress. Thus, Fooducate is focused on long-term improvement of eating habits and weight loss @chaudhry2019
 
 *Advantages*
 
@@ -107,7 +107,7 @@ Fooducate is one of the first mobile apps in this area (launched in 2010 in the 
 
 === Junker
 
-Junker is a specialized ecological application from Italy that solves the problem of “Where to throw away the packaging?” Its slogan is “virtual assistant for sorting waste”. Junker scans the barcode of a product and recognizes all the parts of the packaging it consists of and the materials of these parts. Then the application clearly instructs which container each part should be disposed of in according to local recycling rules. Junker’s strong point is its integration with municipalities: the application uses geolocation to provide instructions specifically for the community where the user is located (since sorting rules may differ by region). It also reminds about the days of collection of certain fractions via push notifications. Junker’s database contains ~1.7 million products, covering most of the Italian market. If the product is missing, the user can take a photo - and the AI algorithms will recognize the packaging @southey2020.
+Junker is a specialized ecological application from Italy that solves the problem of "Where to throw away the packaging?” Its slogan is “virtual assistant for sorting waste”. Junker scans the barcode of a product and recognizes all the parts of the packaging it consists of and the materials of these parts. Then the application clearly instructs which container each part should be disposed of in according to local recycling rules. Junker's strong point is its integration with municipalities: the application uses geolocation to provide instructions specifically for the community where the user is located (since sorting rules may differ by region). It also reminds about the days of collection of certain fractions via push notifications. Junker's database contains ~1.7 million products, covering most of the Italian market. If the product is missing, the user can take a photo - and the AI algorithms will recognize the packaging @southey2020.
 
 *Advantages*
 
@@ -163,7 +163,7 @@ Junker is a specialized ecological application from Italy that solves the proble
 
 As shown in @tab:solutions-comparison, all the solutions analyzed in Market Research focus on one specific goal. Open Food Facts mainly focuses on providing information about the product, while also containing additional information on how to properly sort the packaging from this product. Yuka and Fooducate mainly provide information exclusively about how a product affects health and how it is a good choice for the consumer. At the same time, Junker provides information exclusively on how to properly sort waste and dispose of packaging.
 
-Thus, we see the problem in the fact that at the moment there is no single solution that would combine all the necessary functions and accompany the user on the entire path — from buying a product in a store to its proper disposal and sorting.
+Thus, we see the problem in the fact that at the moment there is no single solution that would combine all the necessary functions and accompany the user on the entire path - from buying a product in a store to its proper disposal and sorting.
 
 == Gap Analysis
 
@@ -189,5 +189,3 @@ Even when the packaging says it is recyclable, it may be unclear to the consumer
 Conducted market research and gap analysis demonstrate that currently existing solutions cover only one consumer need at a time - either health care or environmental care. None of the analyzed solutions combines all these aspects in one application.
 
 As a result, users have to switch between several applications to get complete information about the product: starting with the right choice on the store shelf and ending with how to properly dispose of the packaging without harming the environment. This gap creates an excellent opportunity for the development of ReFood - a smart assistant in the pocket that will accompany the user at every stage of the product's life cycle.
-
-
