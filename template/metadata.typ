@@ -2,8 +2,8 @@
 // Document options
 //
 #let option = (
-  //type : "final",
-  type : "draft",
+  type : "final",
+  //type : "draft",
   lang : "en",
   //lang : "de",
   //lang : "fr",
