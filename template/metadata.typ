@@ -3,7 +3,6 @@
 //
 #let option = (
   type : "final",
-  //type : "draft",
   lang : "en",
   //lang : "de",
   //lang : "fr",
@@ -116,7 +115,7 @@
 )
 
 #let gloss    = true
-#let appendix = false
+#let appendix = true
 #let bib = (
   display : true,
   path  : "/tail/bibliography.bib",

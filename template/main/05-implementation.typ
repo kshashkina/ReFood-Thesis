@@ -12,6 +12,7 @@ The ReFood development followed the Agile methodology, organized into three spri
 Sprint Organization
 
 - Each sprint began with planning and prioritizing tasks for the following month using the RICE framework.
+- A lightweight product backlog was maintained throughout the project and served as the primary source for sprint planning. The complete initial backlog is provided in Appendix AA.
 - During the sprint, we held meetings every two days to determine whether we were on track and to identify potential issues and areas where additional support was needed.
 - At the end of each sprint, we received feedback from our supervisor and conducted a retrospective analysis of the previous sprint.
 
@@ -29,22 +30,19 @@ Sprint Organization
 Before implementing the final version of ReFood, several architectural and product decisions were validated through iterative prototyping.
 
 *Architecture Validation*
-- An early version of the application was developed following Clean Architecture principles to validate the separation between the user interface, business logic, and data layer.
+- The application architecture was tested through several iterations of the client-side structure. Before finalizing the current architecture, based on Clean Architecture principles combined with MVVM for the presentation layer, various approaches to organizing the presentation, domain, and data layers were evaluated. This approach ensured a clear separation of responsibilities while maintaining a reasonable implementation complexity for the mobile application.
 
 *Database Design Validation*
-- Different entity relationships, data models and storage approaches were tested to determine which product information should be stored locally and which data should remain cloud-based.
+- Early prototypes relied on retrieving historical data from the backend. During testing, this approach resulted in noticeable delays when opening scan history and reduced usability in poor network conditions. As a result, SwiftData was adopted to ensure local data storage and support offline operation.
 
 *AI Service Evaluation*
-- Multiple AI providers and prompting strategies were tested to evaluate response quality, consistency and cost efficiency. Different prompt structures were compared in order to achieve stable and predictable product explanations across multiple requests.
+- Multiple prompt structures were tested during development. Initial prompts produced inconsistent formatting and varying explanation quality. Through iterative refinement, structured prompts and predefined response formats were introduced, resulting in more predictable AI-generated product analyses.
 
 *Recycling Infrastructure Research*
-- Different providers of recycling location data were evaluated and compared based on data quality, coverage and integration complexity. The selected solution demonstrated the best balance between performance and geographic coverage.
+- Initially, we experimented with direct OpenStreetMap solution. However, retrieving recycling points, searching nearby locations and generating routes was noticeably slower than expected and required additional processing on the backend side. As a result, Geoapify was selected because it provided significantly faster responses and better support for routing and geolocation features.
 
 *User Interface and Responsive Layout Prototyping*
-- We created several design prototypes before the final one was selected. Main attention was given to responsive layouts and usability across different devices of different sizes.
-
-*Local Data Storage Validation*
-- SwiftData prototypes were developed to validate local storage performance. This approach was ultimately adopted to ensure that frequently accessed information, such as scan history, could be loaded instantly without requiring a network request.
+- Before finalizing the design, we created numerous prototypes and collected feedback from potential users. Based on user preferences, we adjusted the design, especially on the product details screen to ensure key information was clearly visible.
 
 This iterative prototyping processes significantly reduced risks and allowed us be sure about or key architectural decisions before development began.
 
@@ -597,6 +595,8 @@ The main business logic of the application is covered by unit tests using the na
 - *Business Logic and Calculations*: Validating complex algorithms, such as tracking gamification progress for user achievements and determining the healthier product in the comparison module.
 - *Asynchronous State Management*: Verifying the correct handling of concurrent tasks, which includes preventing duplicate network requests during barcode searches and ensuring UI loading indicators behave predictably during simulated API delays.
 - *Data Validation*: Ensuring strict validation of user inputs before data is processed, such as trimming whitespaces from barcodes, verifying string lengths and correctly parsing decimal numbers in the product creation forms.
+
+In total, 175 unit tests were implemented to verify ViewModels' logic. All 175 tests passed successfully, confirming the stability of the main client-side logic.
 
 *Alternative Approaches and Justification*
 
