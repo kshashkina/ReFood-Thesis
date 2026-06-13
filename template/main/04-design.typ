@@ -167,9 +167,6 @@ ReFood's backend architecture is built on the Single Responsibility Principle an
 - *MetricsService*
   - *Purpose and relationships:* Collects analytics events from other lambdas (such as successful scans or routes showing) and updates counters, daily streaks and user eco-achievement statuses in the `UserMetrics` table.
 
-*Cloud deployment architecture*
-
-The ReFood app deployment is based on AWS's public global infrastructure, where everything is geographically localized within a single region (`eu-north-1`, Stockholm) to ensure minimal network latency for European and Ukrainian users.
 
 == Technology Stack Summary
 

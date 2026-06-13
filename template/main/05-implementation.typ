@@ -116,25 +116,10 @@ In this way, when a user deletes the app and reinstalls it their anonymous data 
 
 *Anonymous Registration Implementation*
 
-The following code snippet processes initial device checks, updates outdated identityId tokens and guarantees database entity uniqueness using DynamoDB conditional checks:
+The following code snippet of `registerUser` processes initial device checks, updates outdated identityId tokens and guarantees database entity uniqueness using DynamoDB conditional checks:
 
 ```javascript
-export const registerUser = async (event) => {
-    let body;
-    try {
-      body = JSON.parse(event.body || "{}");
-    } catch {
-      return response(400, { error: "Invalid JSON body" });
-    }
-
-    const validation = validateRegisterRequest(body);
-    if (!validation.valid) {
-      return response(400, {
-        error: "Validation failed",
-        details: validation.errors
-      });
-    }
-
+  ...
     try {
       const existingUser = await findUserByDevice(body.deviceId);
 
@@ -162,13 +147,8 @@ export const registerUser = async (event) => {
       }
 
       return response(201, { message: "New user created" });
-    } catch (error) {
-      console.error("Error:", error);
-      return response(500, {
-        error: "Failed to register user"
-      });
     }
-  };
+  ...
 ```
 
 *User DB Model*
@@ -191,31 +171,7 @@ export const registerUser = async (event) => {
 When transitioning into an authenticated state, the app sends a request to the /link-account endpoint. This handler transfers the anonymous data to a permanent user account.
 
 ```javascript
-
-export const registerLinkAccount = async (event) => {
-    // extract cognitoSub from verified JWT claims (set by API Gateway auth)
-    const claims = event.requestContext?.authorizer?.claims || event.requestContext?.authorizer?.jwt?.claims;
-    const cognitoSub = claims?.sub;
-
-    if (!cognitoSub) {
-        return response(401, { error: "Missing or invalid authorization token" });
-    }
-
-    let body;
-    try {
-        body = JSON.parse(event.body || "{}");
-    } catch {
-        return response(400, { error: "Invalid JSON body" });
-    }
-
-    const { deviceId } = body;
-    if (!deviceId || typeof deviceId !== 'string') {
-        return response(400, { error: "Missing or invalid deviceId" });
-    }
-
-    const email = claims.email || null;
-    const givenName = claims.given_name || null;
-
+  ...
     try {
       // case 1: returning Apple user on a new/same device
       const existingAppleUser = await findUserByCognitoSub(cognitoSub);
@@ -237,13 +193,8 @@ export const registerLinkAccount = async (event) => {
       }
 
       return response(409, { error: "No user session found for this device. Call /users/register first." });
-    } catch (error) {
-      console.error("Error:", error);
-      return response(500, {
-          error: "Failed to link account"
-      });
     }
-  };
+    ...
 ```
 In that way, a shared helper extracts the caller's identity from either authentication method allowing all handlers to resolve a user uniformly.
 
@@ -288,14 +239,7 @@ When a user scans a barcode, the system must: retrieve product information, tran
 The getProduct handler manages cache queries, coordinates external data access and maps localized response:
 
 ```javascript
-  export async function getProduct(event) {
-    const barcodeRaw = event.pathParameters?.barcode;
-    const barcode = normalizeBarcode(barcodeRaw);
-
-    if (!barcode) {
-      return response(400, { error: "Invalid barcode format" });
-    }
-
+  ...
     // step 1: check our own database first
     const dbProduct = await getLatestProductFromDB(barcode);
     if (dbProduct) {
@@ -324,11 +268,7 @@ The getProduct handler manages cache queries, coordinates external data access a
     // step 4: persist to our own database - next scan will be local
     await saveProductToDB(product);
 
-    return response(200, {
-      source: "openfoodfacts",
-      product: toProductResponse(product)
-    });
-}
+  ...
 ```
 
 *Fetching from Open Food Facts*
@@ -386,40 +326,31 @@ Step 4: The background function passes the S3 image URI to the AIService using m
 
 Step 5: The evaluation output is written to the UploadJobs table. Upon approval, the image is moved to the permanent production folder, updating the record status. If rejected, the job documents specific error details for client tracking.
 
+The snippet code of `validateImage function`:
+
 ```javascript
-  export async function validateImage(event) {
-    const results = [];
+  ...
+    try {
+        const imageUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${s3Key}`;
+        const aiResult = await checkPhoto(imageUrl);       // call AI to check image
 
-    for (const record of event.Records) {
-        const s3Key = decodeURIComponent(record.s3.object.key.replace(/\+/g, " "));
-        const filename = s3Key.split("/").pop();
-        const imageId = filename.split(".").slice(0, -1).join(".");
+        const isValid = aiResult?.isValid ?? false;
+        const error_en = aiResult?.error_en || null;
+        const error_ua = aiResult?.error_ua || null;
+        const status = isValid ? "APPROVED" : "REJECTED";
 
-        console.log(`S3 notification received: s3Key=${s3Key}, imageId=${imageId}`);
-        try {
-            const imageUrl = `https://${BUCKET_NAME}.s3.amazonaws.com/${s3Key}`;
-            const aiResult = await checkPhoto(imageUrl);       // call AI to check image
+        // update for client to know about status of job
+        await updateJobStatus(imageId, status, error_en, error_ua);
 
-            const isValid = aiResult?.isValid ?? false;
-            const error_en = aiResult?.error_en || null;
-            const error_ua = aiResult?.error_ua || null;
-            const status = isValid ? "APPROVED" : "REJECTED";
-
-            // update for client to know about status of job
-            await updateJobStatus(imageId, status, error_en, error_ua);
-
-            results.push({ imageId, status });
-        } catch (error) {
-            await updateJobStatus(imageId, "REJECTED", {
-                error_en: "Validation error. Please try again.",
-                error_ua: "Помилка валідації. Спробуйте ще раз.",
-            });
-            results.push({ imageId, status: "REJECTED", error: error.message });
-        }
+        results.push({ imageId, status });
+    } catch (error) {
+        await updateJobStatus(imageId, "REJECTED", {
+            error_en: "Validation error. Please try again.",
+            error_ua: "Помилка валідації. Спробуйте ще раз.",
+        });
+        results.push({ imageId, status: "REJECTED", error: error.message });
     }
-
-    return { processed: results.length, results };
-}
+  ...
 ```
 
 *Benefits:*
@@ -437,7 +368,7 @@ The Map Service provides recycling ponts search capabilities and navigation rout
 
 *Route Request Handler*
 
-The following snippet represents the handler routing parameters, making external requests and returning simplified geometry coordinates:
+The following snippet of `getRoute` function represents the handler routing parameters, making external requests and returning simplified geometry coordinates:
 
 ```javascript
 export async function getRoute(event) {
@@ -495,39 +426,37 @@ The ReFood backend implements a gamification system designed to increase user en
 
 *Incremental Metrics System*
 
-The following snippet showcases one of metric logic's implementation - the increment of scanned product :
+The following snippet showcases one of metric logic's implementation - the increment of scanned product in `incrementScanned` function:
 
 ```javascript
-export const incrementScanned = async (userId, { hour, isWeekend }) => {
-  const now = new Date().toISOString();
+  ...
+    // just incrementation for metric
+    let updateExpr = "ADD scannedCount :inc SET lastUpdated = :now";
+    const exprAttrValues = { ":inc": 1, ":now": now };
 
-  // just incrementation for metric
-  let updateExpr = "ADD scannedCount :inc SET lastUpdated = :now";
-  const exprAttrValues = { ":inc": 1, ":now": now };
+    // check if scanning match any other achivements goals
+    if (hour < 9) {
+        updateExpr += ", earlyBirdUnlocked = :true";
+        updateExpr += ", earlyBirdUnlockedAt = if_not_exists(earlyBirdUnlockedAt, :now)";
+        exprAttrValues[":true"] = true;
+    }
 
-  // check if scanning match any other achivements goals
-  if (hour < 9) {
-      updateExpr += ", earlyBirdUnlocked = :true";
-      updateExpr += ", earlyBirdUnlockedAt = if_not_exists(earlyBirdUnlockedAt, :now)";
-      exprAttrValues[":true"] = true;
-  }
+    if (isWeekend) {
+        updateExpr += ", weekendHasScanned = :true";
+        exprAttrValues[":true"] = true;
+    }
 
-  if (isWeekend) {
-      updateExpr += ", weekendHasScanned = :true";
-      exprAttrValues[":true"] = true;
-  }
+    await docClient.send(new UpdateCommand({
+        TableName: USER_METRICS_TABLE,
+        Key: { userId },
+        UpdateExpression: updateExpr,
+        ExpressionAttributeValues: exprAttrValues
+    }));
 
-  await docClient.send(new UpdateCommand({
-      TableName: USER_METRICS_TABLE,
-      Key: { userId },
-      UpdateExpression: updateExpr,
-      ExpressionAttributeValues: exprAttrValues
-  }));
-
-  if (isWeekend) {
-      await checkAndSetEcoWeekend(userId, now);
-  }
-};
+    if (isWeekend) {
+        await checkAndSetEcoWeekend(userId, now);
+    }
+  ...
 ```
 
 === News Service: Research and Nutritional Education Materials
@@ -725,3 +654,32 @@ In the case of the mobile client, the main attention was paid to optimizing the 
 
 - *Problem:* On the search screen (`SearchView`), the list of scanned history is reactively updated every time user enters a new character, change the focus, or switch tabs. Deserialization of "heavy" JSON data (productData) for hundreds or thousands of elements in real time with each such update of the interface would lead to a strong drop in performance.
 - *Solution:* In `SearchViewModel`, the preliminary filtering strategy was applied. Matched text search and "favorite" status check are performed on lightweight properties of the local model (such as name and brand) before JSON processing begins. The resource-intensive operation JSONDecoder().decode is called only for those elements that have already passed filtering, which allows the search to work instantly regardless of the size of the scanned history.
+
+== Deployment and Configuration Management
+=== Server-side deployment
+
+The ReFood app deployment is based on AWS's public global infrastructure, where everything is geographically localized within a single region (`eu-north-1`, Stockholm) to ensure minimal network latency for European and Ukrainian users.
+
+*Automated Deployment via CI/CD*
+
+To automate the deployment of the application server-side components, a separate GitHub Actions pipeline has been set up for each Lambda function. Each workflow triggers automatically when changes are pushed to the `main` branch - but only if the changes affect the directory of the corresponding service. This means that changes in one service do not trigger a redeployment of others, which minimizes the number of unnecessary deployment operations.
+
+Each pipeline consists of four sequential steps: fetching code from the repository, installing production dependencies, packaging the function into a ZIP archive and uploading the new code to AWS Lambda via the AWS CLI. AWS access credentials are stored as encrypted GitHub Secrets and do not appear in text anywhere in the code.
+This approach ensures a fully automated and reproducible deployment process: any code change merged into the main branch is automatically deployed to the production environment without manual intervention.
+
+
+=== Client-side deployment
+
+The practical process of deploying the ReFood mobile client and managing its configurations had a clear sequence of actions, which was performed immediately after the development and testing of the code base was completed. This process consisted of several key stages:
+
+*Release Build*
+
+After completing the active coding phase in Xcode, using a registered Apple Developer account, the project archiving process was initiated. The result of this step was the creation of a ready-to-deploy installation package in `.ipa` format.
+
+*Testing via TestFlight*
+
+The generated .ipa file was exported directly from Xcode and uploaded to the App Store Connect cloud system. In order to test the application in real conditions, the TestFlight platform was configured. Through it, the build was sent to real iPhones of the development team members, which allowed us to identify and fix minor interface bugs before the official publication.
+
+*App configuration in App Store Connect*
+
+At the final stage, in parallel with testing, the application's product page was prepared for release. In the App Store Connect account, text descriptions and keywords were filled in, real screenshots of the application screens were uploaded, and the security section was configured.

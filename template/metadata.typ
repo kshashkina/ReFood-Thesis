@@ -29,7 +29,7 @@
 //
 #let doc= (
   title    : "ReFood",
-  subtitle : "Design and Implementation of a Native iOS Application for Product Composition Analysis and Waste Sorting Optimization.",
+  subtitle : "Design and Implementation of a Native iOS Application for Conscious Food Choices and Waste Sorting Optimization.",
   author: (
     name        : "Kateryna Shashkina & Yaroslava Mala",
     email       : "firstname.lastname@kse.org.ua",
@@ -58,8 +58,8 @@
 
 #let professor= (
   affiliation: "KSE",
-  name: "Isaac Newton, PhD",
-  email: "inewton@kse.org.ua",
+  name: "Ihor Pysmennyi",
+  email: "ipysmennyi@kse.org.ua",
 )
 #let expert= (
   affiliation: "Company",
