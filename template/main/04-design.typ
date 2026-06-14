@@ -167,6 +167,147 @@ ReFood's backend architecture is built on the Single Responsibility Principle an
 - *MetricsService*
   - *Purpose and relationships:* Collects analytics events from other lambdas (such as successful scans or routes showing) and updates counters, daily streaks and user eco-achievement statuses in the `UserMetrics` table.
 
+== User Interface and User Experience Design
+
+#figure(
+  image("/resources/img/ux-full.png", width: 100%),
+  caption: [ReFood User Experience Map (High-resolution version is available via link: https://www.figma.com/board/tF6A8DLTiIZo3QgSJ2lvjb/UX-Map---ReFood?node-id=0-1&t=Y786ryQ2tMFZZRBG-1],
+)
+
+To ensure a consistent and intuitive user experience, a complete UX flow map was designed before implementation. The map illustrates all primary navigation paths available within the application, including onboarding, product scanning, product analysis, recycling guidance, map navigation and user profile management.
+
+=== Navigation Structure
+
+==== Onboarding Flow
+
+#figure(
+  image("/resources/img/ux-onb.png", width: 80%),
+  caption: [UX Map - Onboarding Flow]
+)
+
+On both the first and subsequent launches of the app, the user is greeted with a *Splash Screen* featuring a beautiful animation of our logo and product name. If the user reinstalls the app on the same device, we retrieve all their information and start an animation asking them to wait a bit while their data is returned to the app.
+
+After the user has passed the splash screen and if this is their launch of the app, we display an *Onboarding Screen* that describes our most important features: scanning products, understanding their ingredients and properly sorting their packaging.
+
+Finally, after the user has seen all three onboarding screens, we transfer them to the *Main Screen*, which displays a variety of information.
+
+On the Main Screen, we display the number of scanned and sorted products, a daily tip from our team, news from PubMed and a list of recently scanned products, limited to the last five. Also, in the recently scanned products section, there's a *"See all"* button that takes the user to a screen of all scanned products. Moreover, user can access the *Product Details Screen* from the recent scans section by tapping on the product card. When a user first launches the app, the scanned and sorted product counters will be zero and the list of recently scanned products will be empty, with text prompting users to scan their first product.
+
+==== Main Screens
+
+#figure(
+  image("/resources/img/ux-main-screens.png", width: 35%),
+  caption: [UX Map - Main Screens Flow]
+)
+
+After the user reaches the main screen, they gain access to all primary areas of the application through the bottom navigation bar. The main navigation consists of four core sections: *Search*, *Map*, *Scanner* and *Profile*.
+
+==== Search Screen
+
+#figure(
+  image("/resources/img/ux-search.png", width: 45%),
+  caption: [UX Map - Search Screen Flow]
+)
+
+When a user navigates to the *Search Screen*, they see a list of all previously scanned products. From this screen, users can access the *Product Details Screen* by tapping a product card, like or dislike products and switch between viewing all scanned products or only their favorite items using the toggle.
+
+The screen also provides a search function that lets users find products in their scan history by product name or brand. For better usability, products can be quickly removed by swiping a product card to the left.
+
+All empty states are supported by dedicated UX placeholders that clearly communicate the current situation to the user. These states include the absence of scanned products, the absence of favorite products and cases where a search query returns no results.
+
+==== Scanning Flow and Product Adding Flow
+
+#figure(
+  image("/resources/img/ux-scan-1.png", width: 80%),
+  caption: [UX Map - Scanning Flow and Product Adding Flow]
+)
+
+After the user first opens the *Product Scanning Flow*, they are presented with a system modal window requesting camera access and explaining why the app requires it. If the user denies access, we present them with our modal window, asking them to go to settings to grant camera access and continue using the scanning flow.
+
+When the app gains access to the camera, we open the *Scanner Screen*. On this screen, the user can start scanning by simply pointing the phone's camera at the product barcode, tap the *"Scan"* button if automatic scanning hasn't started, turn on the flashlight and proceed to the *Manual Input Screen*. On the Manual Input Screen, the user enters the product barcode and taps the "Find Product" button to start search.
+
+After the user either starts scanning by pointing the camera at the barcode or by entering the barcode on the manual input screen, a modal window for loading the product opens. If the product search reveals that the product was not found in the database, the loading modal window changes to a modal window stating that the product was not found. At this point, the user can either scan another product or add the product to our database.
+
+If the user decides to add the product to our database, we open the *Product Adding Screen*, where the user must add a product photo and enter basic product information.
+
+==== Product Screen
+
+#figure(
+  image("/resources/img/ux-scan-2.png", width: 80%),
+  caption: [UX Map - Product Screen Flow]
+)
+
+If the product scan is successful, the user is presented with a *Product Preview Screen*, which confirms whether the product found is indeed the one they wanted to retrieve from the database. At this point, the user can either return to the scanner screen and scan another product or confirm that the product found is correct.
+
+After confirming, the user is transferred to the *Product Details Screen*. This screen displays full product information, including ingredients, categories, calories, and other nutritional facts, as well as a detailed AI analysis of the product and a description of its packaging. Additionally, a *"Share"* button is located at the top of the screen, allowing the user to share the product found.
+
+From the product details screen, the user can navigate to three main user flows: *Product Edit Flow*, *Comparison Flow*, and *Sorting Flow*.
+
+If the user believes any product information is incorrect or incomplete, they can click the *Pencil Icon* at the top of the screen. This action takes the user to the *Product Edit Flow*, where they can edit or supplement the product information.
+
+If the user wants to compare a product with another, they can tap the comparison button located at the bottom of the screen. This reopens the *Scanner Screen*, allowing the user to scan a second product. After successfully finding the second product, the app displays the *Product Preview Screen* again, and then, upon confirmation, takes the user to the *Comparison Screen*. On this screen, products are compared by Nutri-Score, Eco-Score, and nutrients. Additionally, the user can run an AI analysis and receive a recommendation on which product is the preferable choice.
+
+The last scenario available from the product details screen is related to packaging sorting. In the packaging information section, there is a *"How to Sort"* button. Tapping it takes the user to the *Recycling Screen*. This screen displays more detailed information about the product packaging, the materials it is made from, and instructions on how to prepare it for recycling. Below the description of all packaging components is a "Find Recycling Point" button, which takes the user to the Map Flow.
+
+==== Map Flow
+
+#figure(
+  image("/resources/img/ux-map.png", width: 80%),
+  caption: [UX Map - Map Flow]
+)
+
+When a user opens *Map Flow* for the first time, the app displays a system modal window requesting access to the device's geolocation. If the user denies access, the app displays its own modal window explaining that geolocation access is required to create routes to recycling centers.
+
+If geolocation access is unavailable, the map opens using a preset default location (in our case, Kyiv). If the user has granted geolocation access, the camera automatically centers on their current location. An additional button on the screen allows the camera to return to the user's current location at any time. Tapping this button again activates follow mode, in which the map automatically rotates based on the user's direction of travel.
+
+The map displays available recycling centers. If the user moves the map to another area, they can use the *"Search in this Area"* button to load recycling centers for the selected zone.
+
+Tapping on any recycling point opens an information window displaying the name of the point, its address, a list of accepted materials and buttons for building a route by foot, bike or car.
+
+After building a route, the user is shown travel time and total route distance. Two additional buttons are also available on this screen. The *"Sorted"* button notifies the app that the product has been successfully sorted, incrementing the counter of sorted products and updating user statistics. The *"Close"* button closes the route information and returns the user to the map.
+
+All missing data states are accompanied by special UX placeholders. These are used when no recycling points are found in the selected area or when building a route is impossible for some reason.
+
+==== Profile Flow
+
+#figure(
+  image("/resources/img/ux-profile.png", width: 80%),
+  caption: [UX Map - Profile Flow]
+)
+
+When the user first navigates to the *Profile Screen*, an information bar appears at the top of the screen prompting them to register with an Apple ID. Its main purpose is to inform the user that registration will preserve all accumulated data, even if the app is deleted and reinstalled. After successful authorization, the bar's text changes to inform the user that registration has been successful and all data is now secure.
+
+On the profile screen, the user also sees their basic statistics, some of which are also displayed on the app's main screen. Additionally, the current streak - the number of consecutive days the user has returned to the app - is displayed here.
+
+Below the statistics block are three main sections the user can navigate to: *Achievements Screen*, *Settings Screen* and *Help Screen*.
+
+The *Achievements Screen* displays the user's current progress across all available achievements, along with detailed information about each one. If an achievement has not yet been earned, the user is shown the requirements for unlocking it. After earning an achievement, the corresponding card is highlighted in green and the date it was earned is also displayed.
+
+The *Settings Screen* allows the user to manage the app's basic settings. This includes app permission settings (camera and location), the ability to change the interface language, access additional legal information, including the Terms of Use and Privacy Policy and the ability to delete an account if the user is logged in with an Apple ID.
+
+The last section is the *Help Screen*. Here, the user can find answers to frequently asked questions. If the information provided doesn't answer their question, they can contact the app's support team.
+
+=== User Interface Design Principles
+
+The ReFood user interface was designed with a focus on simplicity and minimizing the number of actions required to complete key user tasks.
+
+*Minimal Interaction Principle*
+
+- The most frequently used functions, such as barcode scanning, product comparison and finding recycling centers are accessible to the user in one or two actions.
+
+*Progressive Disclosure*
+
+- Detailed information is displayed only when the user actually needs it. For example, detailed packaging recycling instructions, descriptions of individual packaging components and route information are available only after the appropriate user action.
+
+*Consistent and Predictable Interface*
+
+- A consistent navigation structure and visual style are used throughout the app. Similar actions utilize the same controls, buttons and interaction patterns, allowing users to quickly master the interface and comfortably navigate between screens.
+
+*Localization Support*
+
+- The interface was designed from the ground up to support multiple languages. All key navigation elements, user messages and app content are available in both Ukrainian and English, making the app more accessible to the target audience.
+
+
 
 == Technology Stack Summary
 
