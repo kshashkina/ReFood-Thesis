@@ -28,7 +28,7 @@
 //
 #let doc= (
   title    : "ReFood",
-  subtitle : "Design and Implementation of a Native iOS Application for Conscious Food Choices and Waste Sorting Optimization.",
+  subtitle : "Native iOS Application for Conscious Food Choices and Waste Sorting Optimization.",
   author: (
     name        : "Kateryna Shashkina & Yaroslava Mala",
     email       : "firstname.lastname@kse.org.ua",
@@ -38,7 +38,7 @@
     url         : "https://synd.hevs.io",
     signature   : image("/resources/img/signature.svg", width:3cm),
   ),
-  keywords : ("KSE", "Software Engineering", "ReFood", "IOS Mobile Application", "FoodTech", "Barcode Scanning", "Nutritional Analysis", "Artificial Intelligence", "Waste Sorting", "Food Transparency"),
+  keywords : ("KSE", "Software Engineering", "ReFood", "iOS Mobile Application", "FoodTech", "Barcode Scanning", "Nutritional Analysis", "Artificial Intelligence", "Waste Sorting", "Food Transparency"),
   version  : "v0.1.0",
 )
 

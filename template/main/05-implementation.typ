@@ -7,7 +7,7 @@
 == Development Methodology and Team Organization
 
 === Agile Development Approach
-The ReFood development followed the Agile methodology, organized into three sprints, each lasting one month. Given the small team size, we chose Agile over the formal Scrum approach, which in allowed us to quickly adapt to changes in the project and implement the feedback received into the app.
+The ReFood development followed the Agile methodology, organized into three sprints, each lasting one month. Given the small team size, we chose Agile over the formal Scrum approach, which allowed us to quickly adapt to changes in the project and implement the feedback received into the app.
 
 Sprint Organization
 
@@ -22,7 +22,7 @@ Sprint Organization
 )
 
 *Team Responsibilities Distribution:*
-- *Yaroslava Mala:* Responsible for the entire serverless backend architecture, AWS cloud engineering and API integrations. This included developing all AWS Lambda microservices, configuring NoSQL DynamoDB database, managing Amazon S3 bucket triggers and storage layout parameters, API gateway logic and executing third-party API integrations (Open Food Facts endpoints, Geoapify, PubMed and AI model).
+- *Yaroslava Mala:* Responsible for the entire serverless backend architecture, AWS cloud engineering and API integrations. This included developing all AWS Lambda microservices, configuring the NoSQL DynamoDB database, managing Amazon S3 bucket triggers and storage layout parameters, API gateway logic and executing third-party API integrations (Open Food Facts endpoints, Geoapify, PubMed and AI model).
 - *Kateryna Shashkina:* Responsible for the entire iOS mobile client application and user experience layer. This included implementing the responsive iOS frontend using Swift and the declarative SwiftUI framework, designing interface components, managing layout views and setting up the complete client-side event tracking architecture via Amplitude Tracking to log, monitor and evaluate production analytics and user behavior patterns.
 
 === Iterative Design
@@ -39,19 +39,19 @@ Before implementing the final version of ReFood, several architectural and produ
 - Multiple prompt structures were tested during development. Initial prompts produced inconsistent formatting and varying explanation quality. Through iterative refinement, structured prompts and predefined response formats were introduced, resulting in more predictable AI-generated product analyses.
 
 *Recycling Infrastructure Research*
-- Initially, we experimented with direct OpenStreetMap solution. However, retrieving recycling points, searching nearby locations and generating routes was noticeably slower than expected and required additional processing on the backend side. As a result, Geoapify was selected because it provided significantly faster responses and better support for routing and geolocation features.
+- Initially, we experimented with a direct OpenStreetMap solution. However, retrieving recycling points, searching nearby locations and generating routes was noticeably slower than expected and required additional processing on the backend side. As a result, Geoapify was selected because it provided significantly faster responses and better support for routing and geolocation features.
 
 *User Interface and Responsive Layout Prototyping*
 - Before finalizing the design, we created numerous prototypes and collected feedback from potential users. Based on user preferences, we adjusted the design, especially on the product details screen to ensure key information was clearly visible.
 
-This iterative prototyping processes significantly reduced risks and allowed us be sure about or key architectural decisions before development began.
+This iterative prototyping process significantly reduced risks and allowed us to validate our key architectural decisions before development began.
 
 == Architectural Patterns and Coding Standards
 Since the project has a distributed client-server architecture, architectural patterns and coding standards were adapted to the specifics of the server (Backend) and mobile (iOS Frontend) parts of the system.
 
 === Server-side architecture and patterns
 
-The server-side component of the ReFood application is built using a serverless architecture with AWS Lambda. Each Lambda function is an independent microservice with a clearly defined scope of responsibilitya according the Single Responsibility Principle.
+The server-side component of the ReFood application is built using a serverless architecture with AWS Lambda. Each Lambda function is an independent microservice with a clearly defined scope of responsibility according the Single Responsibility Principle.
 
 *Design and Cloud Architectural Patterns Implementation*
 
@@ -59,14 +59,14 @@ The server-side component of the ReFood application is built using a serverless 
 
 - *Cache-Aside Pattern:* This strategy is implemented in the product data gathering (`ProductHandler`). When a request for a product barcode arrives, we first check our own internal cache in DynamoDB. In the event of a cache miss, it fetches data from the Open Food Facts API, runs it through AI processing and stores the record in the database so that subsequent requests are retrieved from the database and are faster.
 
-- *Data Mapper Pattern:* We useed separate mapper modules to transform external data models into internal ones (for example, from the Open Food Facts API into an our product model). This isolates the data transformation logic from the business logic.
+- *Data Mapper Pattern:* We used separate mapper modules to transform external data models into internal ones (for example, from the Open Food Facts API into our product model). This isolates the data transformation logic from the business logic.
 
 - *Event-Driven Pattern:* Lambda function (`news-service`) is triggered not by HTTP requests, but by AWS events. It runs on a schedule via AWS EventBridge to automatically collect scientific publications. Additionally, s3-service responds to S3 events to validate uploaded images.
 
 *Naming Conventions*
 
-- CamelCase was used for files naming (for example `fetchOffApi.mjs`).
-- Directory names reflect the modul's role in the architecture: handlers/ - request handlers, services/ - interaction with infrastructure, helpers/ - utility functions, mappers/ - data transformation.
+- CamelCase was used for file naming (for example `fetchOffApi.mjs`).
+- Directory names reflect the module's role in the architecture: handlers/ - request handlers, services/ - interaction with infrastructure, helpers/ - utility functions, mappers/ - data transformation.
 - Environment variable names are formatted in SCREAMING_SNAKE_CASE style.
 
 === Client-side architecture and patterns
@@ -110,7 +110,7 @@ The ReFood app implements a hybrid identity model designed to maximize user rete
 - Anonymous Session Onboarding: App Launch #sym.arrow AWS Amplify (Cognito Identity Pool) #sym.arrow POST /users/register #sym.arrow AWS Lambda (registerUser) #sym.arrow _the session is established using physical deviceId and AWS IAM temporary credentials attached to the identityId._
 - Authenticated Account Linking Upgrade: Apple OAuth Sign-In #sym.arrow AWS Cognito User Pool Validation #sym.arrow JWT token (cognitoSub within claims) #sym.arrow POST /users/register/link-account #sym.arrow AWS Lambda (registerLinkAccount).
 
-In this way, when a user deletes the app and reinstalls it their anonymous data reappears because it is tied to deviceId. When a user signs in with Apple on any other IOS device - their full history and favorites are restored via cognitoSub.
+In this way, when a user deletes the app and reinstalls it, their anonymous data reappears because it is tied to deviceId. When a user signs in with Apple on any other iOS device - their full history and favorites are restored via cognitoSub.
 
 *Anonymous Registration Implementation*
 
@@ -234,7 +234,7 @@ When a user scans a barcode, the system must: retrieve product information, tran
 
 *Product Query and Fallback Cache Execution*
 
-The getProduct handler manages cache queries, coordinates external data access and maps localized response:
+The getProduct handler manages cache queries, coordinates external data access and maps localized responses:
 
 ```javascript
   ...
@@ -310,7 +310,7 @@ When a user manually enters data about a missing product, this creates serious s
 
 #underline[Prompt Injection Defense & AI Input Validation]: Before analysis, the user's text input is checked using special classification filters to detect malicious “prompt injection” attacks aimed at disrupting the artificial intelligence model. After that, our AI function checks each input field for unacceptable wording or unrealistic phrases.
 
-#underline[Asynchronous Event-Driven Media Analysis]: User submitted product images cannot be trusted or served immediately. The system decouples this workflow via an asynchronous event-driven pattern using AWS S3, Lambda AIService and AWS EventBridge.
+#underline[Asynchronous Event-Driven Media Analysis]: User-submitted product images cannot be trusted or served immediately. The system decouples this workflow via an asynchronous event-driven pattern using AWS S3, Lambda AIService and AWS EventBridge.
 
 *Image Verification Lifecycle Flow:*
 
@@ -360,9 +360,9 @@ The snippet code of `validateImage function`:
 
 === Map Service: Geoinformation System and Routing
 
-The Map Service provides recycling ponts search capabilities and navigation route generation for user. Both features integrate directly with the Geoapify API.
+The Map Service provides recycling points search capabilities and navigation route generation for users. Both features integrate directly with the Geoapify API.
 
-#underline[Geographic Data Storage and Licensing Compliance]: Under the Geoapify API license agreement, caching or persistently storing geographic coordinate points, spatial indexes and routing details in a local database is explicitly prohibited. The ReFood architecture strictly enforces this compliance by treating responses as transient data: they are fetched on-demand, processed, transformed in memory and immediately transmitted to the client. Additionaly, this architectural design eliminates geospatial table maintenance and reduces DynamoDB storage requirements.
+#underline[Geographic Data Storage and Licensing Compliance]: Under the Geoapify API license agreement, caching or persistently storing geographic coordinate points, spatial indexes and routing details in a local database is explicitly prohibited. The ReFood architecture strictly enforces this compliance by treating responses as transient data: they are fetched on-demand, processed, transformed in memory and immediately transmitted to the client. Additionally, this architectural design eliminates geospatial table maintenance and reduces DynamoDB storage requirements.
 
 *Route Request Handler*
 
@@ -424,7 +424,7 @@ The ReFood backend implements a gamification system designed to increase user en
 
 *Incremental Metrics System*
 
-The following snippet showcases one of metric logic's implementation - the increment of scanned product in `incrementScanned` function:
+The following snippet showcases one part of metric logic's implementation - the increment of scanned product count in `incrementScanned` function:
 
 ```javascript
   ...
@@ -432,7 +432,7 @@ The following snippet showcases one of metric logic's implementation - the incre
     let updateExpr = "ADD scannedCount :inc SET lastUpdated = :now";
     const exprAttrValues = { ":inc": 1, ":now": now };
 
-    // check if scanning match any other achivements goals
+    // check if scanning matches any other achievements goals
     if (hour < 9) {
         updateExpr += ", earlyBirdUnlocked = :true";
         updateExpr += ", earlyBirdUnlockedAt = if_not_exists(earlyBirdUnlockedAt, :now)";
@@ -459,14 +459,14 @@ The following snippet showcases one of metric logic's implementation - the incre
 
 === News Service: Research and Nutritional Education Materials
 
-The News Service provides research studies and nutritional education materials to the application's daily dashboard. The service architecture separates into a scheduled background research aggregation pipeline via PubMed APIs query and AWS EventBridge scheduler.
+The News Service provides research studies and nutritional education materials to the application's daily dashboard. The service architecture separates into a scheduled background research aggregation pipeline via PubMed API query and AWS EventBridge scheduler.
 
 *Automated Data Collection Process:*
 - Scheduled update cycle: AWS EventBridge (daily scheduled rule) #sym.arrow AWS Lambda (fetchNews).
 - External data retrieval: Query to the external NCBI PubMed HTTP API.
 - Processing cycle: Analysis of internal parameters using `fast-xml-parser` #sym.arrow Filtering existing records using a quick search by primary key in local NoSQL tables.
 - Data Processing: Executing an internal lambda #sym.arrow AWS Lambda (AIService: “process_research” action).
-- AI translation and simplification: AI runs automatic summarization algorithms, removing complex terms and creating clear, structured arrays and translate information both Ukrainian and English languages.
+- AI translation and simplification: AI runs automatic summarization algorithms, removing complex terms and creating clear, structured arrays and translate information into both Ukrainian and English.
 - Storage synchronization: Storing processed records in DynamoDB.
 
 *PubMed Data Retrieval and Processing*
@@ -546,9 +546,9 @@ export const getSummary = async (event) => {
 
 Barcode scanning functionality was implemented as a separate service based on the `AVFoundation` framework. To avoid coupling the user interface directly to the camera API, all core scanner operations were abstracted into the `BarcodeScanning` protocol. It defines methods for configuring the scanner, starting and stopping scanning, resetting the state and controlling the device's flashlight.
 
-The `BarcodeScannerService` manages an `AVCaptureSession` object and performs camera configuration in a separate background thread. By using this approach we avoid blocking the main thread and can maintain smooth UI operation. The scanner supports the most common barcode formats that are used on product packaging, like EAN-13, EAN-8, UPC-E and Code 128.
+The `BarcodeScannerService` manages an `AVCaptureSession` object and performs camera configuration in a separate background queue. By using this approach we avoid blocking the main thread and can maintain smooth UI operation. The scanner supports the most common barcode formats that are used on product packaging, like EAN-13, EAN-8, UPC-E and Code 128.
 
-One important implementation feature is protection against scanning of the same barcode multiple times. After successfully recognizing of the first code, the service sets an internal flag and ignores subsequent scans until the user initiates a new scan. This prevents sending multiple identical requests if the camera is still pointed at the same product.
+One important implementation feature is protection against scanning of the same barcode multiple times. After the first barcode is successfully recognized, the service sets an internal flag and ignores subsequent scans until the user initiates a new scan. This prevents sending multiple identical requests if the camera is still pointed at the same product.
 
 The `ScannerViewModel` controls the scanner's operation. After receiving a barcode, the ViewModel stores its value, stops the camera and initiates an asynchronous download of product information:
 
@@ -572,7 +572,7 @@ private func bindScanner() {
 }
 ```
 
-A separate `CameraPermissionService` component was also implemented. It is responsible for checking and requesting camera permissions. This allows the application to correctly handle various access scenarios, including allowed, denied and limited access to the camera.
+A separate `CameraPermissionService` component was also implemented. It is responsible for checking and requesting camera permissions. This allows the application to correctly handle various access scenarios, including allowed, denied and restricted access to the camera.
 
 Appendix AB provides selected implementation fragments of the scanner service. The complete source code is available in the project GitHub repository.
 
@@ -630,7 +630,7 @@ Appendix AB provides selected implementation fragments of the map service. The c
 
 === SwiftData Scan History and Local Metrics: Offline-First Persistence
 
-The iOS app's scan history was implemented using an offline-first approach using `SwiftData`. This solution allows users to view previously scanned products even without an internet connection, which is especially important in supermarkets where mobile networks can be unstable.
+The iOS app's scan history was implemented using an offline-first approach with `SwiftData`. This solution allows users to view previously scanned products even without an internet connection, which is especially important in supermarkets where mobile networks can be unstable.
 
 The history is stored using the `ScannedHistoryModel` model, annotated with the `@Model` macro. It stores the product's unique ID, scan date, favorite status, name, brand, image link and serialized product data. The id field is marked as unique, so rescanning the same product doesn't create a duplicate but updates the existing record.
 
@@ -655,7 +655,7 @@ Task {
 }
 ```
 
-It's important to note that this fragment is just one example of data recording on the client. A similar approach is used in other parts of the application: when manually entering a barcode, adding new products, changing the status of a favorite product and confirming successful sorting.
+It is important to note that this fragment is just one example of data recording on the client. A similar approach is used in other parts of the application: when manually entering a barcode, adding new products, changing the status of a favorite product and confirming successful sorting.
 
 Within `HistoryRepositoryImpl`, the product is first encoded as `JSON` data, after which the repository checks whether a record with the same barcode already exists. If the record already exists, the scan date, product details, name, brand and image are updated. If the product is being scanned for the first time, a new record is created in the local database.
 
@@ -663,7 +663,7 @@ Appendix AB provides selected implementation fragments of the local history. The
 
 === iOS Authentication Flow: Anonymous Session and Apple ID Linking
 
-ReFood's authorization system was implemented so that users can start using the app without mandatory registration. Instead of creating an account on first launch, the app automatically creates an anonymous user, which allows access to all the app's core features.
+ReFood's authorization system was implemented so that users can start using the app without mandatory registration. Instead of creating an account on first launch, the app automatically creates an anonymous user session, which allows access to all the app's core features.
 
 The authorization logic is divided between several components. `AmplifyAuthRepository` handles interactions with `AWS Cognito` and `Apple Sign-In`, `UserRepositoryImpl` makes requests to the backend API and separate `Use Case` components manage anonymous user registration, Apple ID linking and data synchronization.
 
@@ -723,13 +723,13 @@ This approach allows us to run a full list of tests locally without access to th
 *Unit Testing*
 The core business logic of the server-side is covered by unit tests using the *Vitest* framework. Testing is performed at the level of individual Lambda functions. The main areas of testing include:
 
-- *Routing:* Verifying the correct differentiation of input event types - HTTP requests, EventBridge triggers and direct Lambda invokation and delegating them to the appropriate handlers with the return of correct status codes.
+- *Routing:* Verifying the correct differentiation of input event types - HTTP requests, EventBridge triggers and direct Lambda invocation and delegating them to the appropriate handlers with the return of correct status codes.
 
 - *Business logic and calculations:* Validation of data transfer and processing logic and algorithms. Specifically, tracking user gamification progress for numerical and boolean achievement types.
 
 - *Input data validation:* Verifying the validation of required parameters and their format before processing.
 
-- *Testing positive and negative scenarios:* Each logic is covered by tests for both the expected successful outcome and failure scenarios like database unavailability, AI service errors and invalid input data.
+- *Testing positive and negative scenarios:* Each logic path is covered by tests for both the expected successful outcome and failure scenarios like database unavailability, AI service errors and invalid input data.
 
 In total, 374 unit tests were implemented to verify the Lambda business logic. All 374 tests passed successfully, confirming the stability and high reliability of the serverless backend.
 
@@ -758,7 +758,7 @@ The main business logic of the application is covered by unit tests using the na
 - *Asynchronous State Management*: Verifying the correct handling of concurrent tasks, which includes preventing duplicate network requests during barcode searches and ensuring UI loading indicators behave predictably during simulated API delays.
 - *Data Validation*: Ensuring strict validation of user inputs before data is processed, such as trimming whitespaces from barcodes, verifying string lengths and correctly parsing decimal numbers in the product creation forms.
 
-In total, 175 unit tests were implemented to verify ViewModels' logic. All 175 tests passed successfully, confirming the stability of the main client-side logic.
+In total, 175 unit tests were implemented to verify ViewModels logic. All 175 tests passed successfully, confirming the stability of the main client-side logic.
 
 *Alternative Approaches and Justification*
 
@@ -778,7 +778,7 @@ On the server side, the main focus was on reducing request processing latency, o
 
 - *Problem:* If AI product analysis were performed with every scan, this would result in two major operational costs—in terms of both time and money—and with a large number of users, these costs would increase proportionally to the number of scans of the same product. Additionally, generative models can produce different responses each time they are requested, which would mean that different users would receive differently worded analyses of the same product.
 
-- *Solution:* AI product analysis is performed exactly once when the product is first saved to the database. The result (`analysis_ua`, `analysis_en`) is stored along with the product and subsequently returned to all users without recalls to AI. This ensures the consistent conclusion for every user and completely eliminates AI costs during subsequent scans of the same barcode.
+- *Solution:* AI product analysis is performed exactly once when the product is first saved to the database. The result (`analysis_ua`, `analysis_en`) is stored along with the product and subsequently returned to all users without repeated AI calls. This ensures the consistent conclusion for every user and completely eliminates AI costs during subsequent scans of the same barcode.
 
 *Bottleneck in Long-Running Photo Processing*
 
@@ -796,7 +796,7 @@ On the server side, the main focus was on reducing request processing latency, o
 
 - *Problem:* The daily news collection pipeline from PubMed could send articles that already existed in the database to the AI service for processing. Each call to the AI service is relatively slow and can be a costly operation, so processing duplicates led to wasted resources.
 
-- *Solution:* A deduplication step was introduced before sending articles to the AI: for each received publication, we check for verify its existence in the database (`checkNewsExists`). Only new content is sent to the AI service, which significantly reduces the number of calls.
+- *Solution:* A deduplication step was introduced before sending articles to the AI: for each received publication, we verify its existence in the database (`checkNewsExists`). Only new content is sent to the AI service, which significantly reduces the number of calls.
 
 === Client-side performance optimizations
 
@@ -804,7 +804,7 @@ In the case of the mobile client, the main attention was paid to optimizing the 
 
 *Scanner Bottleneck*
 
-- *Problem:* The constant search for a barcode by the camera heavily loaded the processor and could cause the device to overheat. In addition, if not interrupt the process after a successful scan, the application inevitably enters an endless cycle of recognizing the same code, blocking further logic.
+- *Problem:* The constant search for a barcode by the camera heavily loaded the processor and could cause the device to overheat. In addition, if the process is not interrupted after a successful scan, the application inevitably enters an endless cycle of recognizing the same code, blocking further logic.
 - *Solution:* The scanner logic was designed in such a way to instantly stop the video capture session (`AVCaptureSession`) and disable frame analysis immediately after the first successful reading. Scanning resumes only after an explicit user action (for example, when closing the product details window or pressing the rescan button).
 
 *Map API Bottleneck*
@@ -814,7 +814,7 @@ In the case of the mobile client, the main attention was paid to optimizing the 
 
 *Search UI Bottleneck*
 
-- *Problem:* On the search screen (`SearchView`), the list of scanned history is reactively updated every time user enters a new character, change the focus, or switch tabs. Deserialization of "heavy" JSON data (productData) for hundreds or thousands of elements in real time with each such update of the interface would lead to a strong drop in performance.
+- *Problem:* On the search screen (`SearchView`), the list of scanned history is reactively updated every time the user enters a new character, change the focus or switch tabs. Deserialization of "heavy" JSON data (productData) for hundreds or thousands of elements in real time with each such update of the interface would lead to a strong drop in performance.
 - *Solution:* In `SearchViewModel`, the preliminary filtering strategy was applied. Matched text search and "favorite" status check are performed on lightweight properties of the local model (such as name and brand) before JSON processing begins. The resource-intensive operation JSONDecoder().decode is called only for those elements that have already passed filtering, which allows the search to work instantly regardless of the size of the scanned history.
 
 == Deployment and Configuration Management
@@ -835,7 +835,7 @@ Each pipeline consists of four sequential steps: fetching code from the reposito
 
 CI/CD Pipeline Features:
 - *Path-Based Triggering*: Workflows utilize precise directory filters (paths), ensuring that only modified Lambda services are tested and deployed, optimizing overall build time.
-- *Automated Quality Check*: Before any deployment, the pipeline automatically run appropriate tests via Vitest. If any of the server-side unit tests fail, the workflow terminates immediately.
+- *Automated Quality Check*: Before any deployment, the pipeline automatically runs appropriate tests via Vitest. If any of the server-side unit tests fail, the workflow terminates immediately.
 - *Secure Environment Management*: AWS access credentials are stored as encrypted GitHub Secrets or inside Lambda environment variables and do not appear in text anywhere in the code.
 
 === Client-side deployment
@@ -848,7 +848,7 @@ After completing the active coding phase in Xcode, using a registered Apple Deve
 
 *Testing via TestFlight*
 
-The generated .ipa file was exported directly from Xcode and uploaded to the App Store Connect cloud system. In order to test the application in real conditions, the TestFlight platform was configured. Through it, the build was sent to real iPhones of the development team members, which allowed us to identify and fix minor interface bugs before the official publication.
+The generated .ipa file was exported directly from Xcode and uploaded to the App Store Connect cloud system. To test the application in real conditions, the TestFlight platform was configured. Through it, the build was sent to real iPhones of the development team members, which allowed us to identify and fix minor interface bugs before the official publication.
 
 *App configuration in App Store Connect*
 

@@ -7,14 +7,14 @@
 
 Based on the results of our marketing research and gap analysis, we identified a number of important user needs that remain unmet by existing solutions on the market. These requirements formed the basis for developing key functional and non-functional requirements for the ReFood app.
 
-Our primary goal was to create a scalable and maintainable solution that would combine the propper food selection and recycling process within a single platform.
+Our primary goal was to create a scalable and maintainable solution that would combine the proper food selection and recycling process within a single platform.
 
 The following sections detail how the identified functional and non-functional requirements were translated into specific engineering solutions and influenced the product's architecture and implementation.
 
 === Mapping Requirements to Architectural Components
 
 *Functional Requirements and Corresponding Architectural Decisions*
-- *Scanning and Manual Entry*: The system must allow users to scan barcodes or manually enter them to instantly retrieve all the data about the product (Nutri-Score, Eco-Score, ingredients, allergens, nutrients) and an provide an AI analysis of the fetched product.
+- *Scanning and Manual Entry*: The system must allow users to scan barcodes or manually enter them to instantly retrieve all the data about the product (Nutri-Score, Eco-Score, ingredients, allergens, nutrients) and provide an AI analysis of the fetched product.
 
   -- Architectural Decision: We utilize a protocol-oriented AVFoundation service for high-performance barcode decoding, coupled with a repository-based API layer to fetch and process product data.
 
@@ -40,7 +40,7 @@ The following sections detail how the identified functional and non-functional r
 
 - *Smart Product Comparison*: The app must support a "Compare Mode" where a user can scan a second product, confirm the comparison and view a side-by-side UI of nutrients. An AI analysis must determine and explain the "winner."
 
-  -- Architectural Decision:мThe comparison mechanism uses `AIService`, which sends comparison requests via Vertex AI (Gemini LLM), compares the features of two products and returns the comparison results to the client.
+  -- Architectural Decision: The comparison mechanism uses `AIService`, which sends comparison requests via Vertex AI (Gemini LLM), compares the features of two products and returns the comparison results to the client.
 
 *Non-Functional Requirements and Corresponding Architectural Decisions*
 
@@ -67,29 +67,29 @@ The system context diagram illustrates the ReFood app's position at the highest 
 
 *Justification for the selection of external integrations and analysis of alternatives*
 
-To ensure the application'ss business functionality we conducted an analysis of available solutions and selected the following external systems:
+To ensure the application's business functionality we conducted an analysis of available solutions and selected the following external systems:
 
 - *Open Food Facts API*
   - *Selected option:* The Open Food Facts (OFF) API - a global open crowdsourced database for barcode recognition, retrieving Nutri-Score and Eco-Score ratings, product ingredients and detailed packaging information. This is how we populate our database, ensuring we have the latest product data and integrating both local and outsourced sources.
   - *Alternatives:* Commercial product catalogs (Barcode Lookup API, Go-UPC API) or building a custom database from scratch by parsing online supermarket data.
-  - *Comparison:* Commercial alternatives have strict limits on free queries (mostly paid commercial plans) and a small database of Ukrainian local brands. Building our own database from scratch at the start of the project would have resulted in a persistent `404 Not Found` error for 95% of products. In contrast, the Open Food Facts API is completely free, supports millions of products from around the world (including the Ukrainian market) and allows us to use the “Cache-Aside” architectural pattern. If a product isn't in our DynamoDB database - we fetch it from OFF, localize it using AI and store it locally in database, thus expanding our own product catalog.
+  - *Comparison:* Commercial alternatives have strict limits on free queries (mostly paid commercial plans) and a small database of Ukrainian local brands. Building our own database from scratch at the start of the project would have resulted in a persistent `404 Not Found` error for 95% of products. In contrast, the Open Food Facts API is completely free, supports millions of products from around the world (including the Ukrainian market) and allows us to use the “Cache-Aside” architectural pattern. If a product isn't in our DynamoDB database - we fetch it from OFF, localize it using AI and store it locally in the database, thus expanding our own product catalog.
 
 - *Geoapify API*
   - *Selected option:* Integration of the Geoapify API to enable real-time search for map points, filtering them by material type and the creation of walking, cycling or driving routes.
   - *Alternatives:* Direct fetching and parsing of raw geodata from OpenStreetMap (OSM) or deploying a custom server based on OSRM (Open Source Routing Machine).
-  - *Comparison:* Direct data extraction from OSM would have required writing complex, rather heavy queries on the Lambda side, which led to significant response delays and user interface freezes. Initially, we tried using direct fetching, but this held our system back in development. It also complicated the logic for storing and building routes, which led to increased product maintenance (which we cannot afford at the MVP stage). Therefore, working with geodata directly forced us to rethink our approach to constantly updating coordinates and our limited AWS cloud budget. Instead, we found a suitable alternative that we are currently using - the Geoapify service. It provides a ready to user, fast fetch (response < 200ms), handles coordinate validation and builds accurate route graphs. Thus, at this stage of product development, we can provide users with a convenient, fast interface that displays processing points and routes to them.
+  - *Comparison:* Direct data extraction from OSM would have required writing complex, rather heavy queries on the Lambda side, which led to significant response delays and user interface freezes. Initially, we tried using direct fetching, but this held our system back in development. It also complicated the logic for storing and building routes, which led to increased product maintenance (which we cannot afford at the MVP stage). Therefore, working with geodata directly forced us to rethink our approach to constantly updating coordinates and our limited AWS cloud budget. Instead, we found a suitable alternative that we are currently using - the Geoapify service. It provides a ready-to-use, fast fetch (response < 200ms), handles coordinate validation and builds accurate route graphs. Thus, at this stage of product development, we can provide users with a convenient, fast interface that displays processing points and routes to them.
 
-    #underline[Geographic Data Storage and Licensing Compliance]: Under the Geoapify API license agreement, caching or persistently storing geographic coordinate points, spatial indexes and routing details in a local database is explicitly prohibited. The ReFood architecture strictly enforces this compliance by treating responses as transient data: they are fetched on-demand, processed, transformed in memory and immediately transmitted to the client. Additionaly, this architectural design eliminates geospatial table maintenance and reduces DynamoDB storage requirements.
+    #underline[Geographic Data Storage and Licensing Compliance]: Under the Geoapify API license agreement, caching or persistently storing geographic coordinate points, spatial indexes and routing details in a local database is explicitly prohibited. The ReFood architecture strictly enforces this compliance by treating responses as transient data: they are fetched on-demand, processed, transformed in memory and immediately transmitted to the client. Additionally, this architectural design eliminates geospatial table maintenance and reduces DynamoDB storage requirements.
 
 - *Gemini LLM API*
   - *Selected option:*  Using Gemini models via the API to translate complex ingredients into understandable language, detect hidden sugars, compare two products and protect the system against prompt injection and inappropriate content when users add products.
   - *Alternatives:* OpenAI services (GPT-4o) or our own LLM.
-  - *Comparison:* OpenAI (GPT) has a higher token cost, which is critical for us given the limited budget for our diploma project. Deploying our own LLM model would require constantly running server resources and thus, the maintenance cost would exceed several hundred dollars per month. The Gemini service provided the best free request limit for development, high speed generation of structured JSON response, processing of both text and images and excellent performance with Ukrainian language.
+  - *Comparison:* OpenAI (GPT) has a higher token cost, which is critical for us given the limited budget for our diploma project. Deploying our own LLM model would require constantly running server resources and thus, the maintenance cost would exceed several hundred dollars per month. The Gemini service provided the best free request limit for development, high-speed generation of structured JSON response, processing of both text and images and excellent performance with the Ukrainian language.
 
 - *NCBI PubMed API*
   - *Selected option:* Integration with the official API of the U.S. National Center for Biotechnology Information for the daily automatic collection of the latest medical and nutritional articles.
   - *Alternatives:* Manually populating the dashboard with articles from the internet.
-  - *Comparison:* Manual data entry contradicts the principles of software engineering automation. Additionally, unverified data obtained from the internet or AI chatbots would significantly undermine trust in the application. In contrast, the PubMed API provides a standardized, validated and strictly structured XML data format. This allowed us to implement a fully autonomous service: a Lambda function retrieves pure scientific facts once a day (at nignt), passes them to AI to filter out complex medical terminology and displays verified information to the user in the feed without any human intervention. We also provide a direct link to the article, which increases user trust.
+  - *Comparison:* Manual data entry contradicts the principles of software engineering automation. Additionally, unverified data obtained from the internet or AI chatbots would significantly undermine trust in the application. In contrast, the PubMed API provides a standardized, validated and strictly structured XML data format. This allowed us to implement a fully autonomous service: a Lambda function retrieves pure scientific facts once a day (at night), passes them to AI to filter out complex medical terminology and displays verified information to the user in the feed without any human intervention. We also provide a direct link to the article, which increases user trust.
 
 - *Amplitude Tracking*
   - *Selected option:* Amplitude, a platform for collecting customer metrics and behavioral events in real time.
@@ -111,22 +111,22 @@ The serverless computing pattern formed the basis of the architectural choice fo
 
 - *AWS API Gateway*
   - *Selected option:* REST HTTP gateway that serves as the single entry point for the mobile app, providing CORS validation, token authorization and request routing.
-  - *Benefits:* AWS API Gateway integrates with the rest of the AWS servvices, automatically scales to handle millions of requests and charges only for calls actually processed.
+  - *Benefits:* AWS API Gateway integrates with the rest of the AWS services, automatically scales to handle millions of requests and charges only for calls actually processed.
 
 - *AWS Lambda*
   - *Selected option:* A serverless code execution environment (Node.js v24) in the form of isolated microservices that are triggered in response to events from API Gateway, EventBridge or a direct invocation Lambda.
   - *Alternatives:* Traditional monolithic or containerized architecture running on AWS EC2.
-  - *Comparison and benefits:* Classic servers run 24/7, which means a constant cost for computing power, even when no one is using the application (for example, during periods of lowest demand - at night). Using AWS Lambda allowed us to break down the logic into atomic, independent functions (`UserHandler`, `ProductHandler` and et.). This ensures fault isolation (if the news service goes down, the scanning continues to work) and automatic horizontal scaling of each function separately.
+  - *Comparison and benefits:* Classic servers run 24/7, which means a constant cost for computing power, even when no one is using the application (for example, during periods of lowest demand - at night). Using AWS Lambda allowed us to break down the logic into atomic, independent functions (`UserHandler`, `ProductHandler` and others.). This ensures fault isolation (if the news service goes down, the scanning continues to work) and automatic horizontal scaling of each function separately.
 
 - *AWS DynamoDB*
   - *Selected option:*  A fully managed key-value NoSQL database (DynamoDB) that delivers consistent response times of a few milliseconds at any scale.
   - *Alternatives:* Relational databases such as PostgreSQL or MySQL.
-  - *Comparison and benefits:* Relational databases have limited horizontal scaling capabilities and require complex replication and connection pooling mechanisms. Product data in ReFood (ingredients, allergens, nutrients and etc.) has a flexible JSON structure from Open Food Facts, which fits perfectly into NoSQL databse without the need to write heavy schema migrations. Since we use composite keys and global secondary indexes, DynamoDB allows us to instantly retrieve product and user profile data. Therefore, it showed us high read speeds at a fixed cost.
+  - *Comparison and benefits:* Relational databases have limited horizontal scaling capabilities and require complex replication and connection pooling mechanisms. Product data in ReFood (ingredients, allergens, nutrients and other fields) has a flexible JSON structure from Open Food Facts, which fits perfectly into NoSQL database without the need to write heavy schema migrations. Since we use composite keys and global secondary indexes, DynamoDB allows us to instantly retrieve product and user profile data. Therefore, it showed us high read speeds at a fixed cost.
 
 - *AWS S3 Bucket and AWS EventBridge*
   - *Selected option:*  Cloud object storage (S3) for uploading photos of packages that integrated with EventBridge to manage asynchronous events.
   - *Alternatives:* Storing images as Blob arrays directly in the database or synchronously processing uploaded photos via API Gateway.
-  - *Comparison and benefits:* Storing binary files in the database would quickly exhaust its limits and slow down indexing. Synchronous image verification via AI during an HTTP request would force the user to wait for a response for more than 5-10 seconds, which ruins the UX and lead to an API Gateway timeout. The combination of S3 and EventBridge allowed us to implement an asynchronous pattern. The user uploads a photo directly to the S3 bucket via a pre-signed URL -> the bucket generates an `ObjectCreated` event -> EventBridge instantly intercepts it and triggers a background Lambda function for AI verification. The user receives a response based on the JobStatus (the AI response, which we store separately).
+  - *Comparison and benefits:* Storing binary files in the database would quickly exhaust its limits and slow down indexing. Synchronous image verification via AI during an HTTP request would force the user to wait for a response for more than 5-10 seconds, which would ruin the UX and lead to an API Gateway timeout. The combination of S3 and EventBridge allowed us to implement an asynchronous pattern. The user uploads a photo directly to the S3 bucket via a presigned URL -> the bucket generates an `ObjectCreated` event -> EventBridge instantly intercepts it and triggers a background Lambda function for AI verification. The user receives a response based on the JobStatus (the AI response, which we store separately).
 
 - *AWS Cognito*
   - *Selected option:*  An authentication service (Cognito) that provides Identity Pools for securely managing temporary IAM roles for anonymous devices and User Pools for verifying Sign-In with Apple tokens.
@@ -150,13 +150,13 @@ ReFood's backend architecture is built on the Single Responsibility Principle an
   - *Purpose and relationships:* Handles initial anonymous device registration, updates session ID and manages logic for linking anonymous data to a permanent account when switching to an Apple ID. Has direct access to the `Users` table for storing profiles. This component also interacts with `MetricsService` to display user achievement statistics.
 
 - *ProductHandler*
-  - *Purpose and relationships:* Implements the logic for processing barcode scans and manual searches. It follows the “Cache-Aside” pattern: fi it checks for the code in the local `Products` table -> in case of a cache miss, it makes a request to the Open Food Facts API -> initiates an internal synchronous call to `AIService` for translation and analysis -> writes the final result back to `Products`. It implements product comparison through AI analysis of each product. It also handles the addition of a new product by a user input, passes it to `AIService` for processing and, based on the result, either saves or prevents the saving of the new product. In addition, the component logs every scan in the `Scans` table and manages product likes and dislikes via the `ProductsFavorites` table.
+  - *Purpose and relationships:* Implements the logic for processing barcode scans and manual searches. It follows the “Cache-Aside” pattern: first checks for the code in the local `Products` table -> in case of a cache miss, it makes a request to the Open Food Facts API -> initiates an internal synchronous call to `AIService` for translation and analysis -> writes the final result back to `Products`. It implements product comparison through AI analysis of each product. It also handles the addition of a new product by a user input, passes it to `AIService` for processing and, based on the result, either saves or prevents the saving of the new product. In addition, the component logs every scan in the `Scans` table and manages product likes and dislikes via the `ProductsFavorites` table.
 
 - *MapService*
   - *Purpose and Interactions:* Processes client requests to search for waste sorting points and build routes. It validates the user's coordinates and dynamically retrieves data from the `Geoapify API`.
 
 - *NewsService*
-  - *Purpose and relationships:* A separate component that does not depend on direct user requests for generating news. It runs once a day on a schedule via the `AWS EventBridge Scheduler`. The service makes a request to the `NCBI PubMed API`, parses data and filters out duplicates already stored in our database. The cleaned data is sent for processing to `AIService` and tobtained results are recorded in `News` table.
+  - *Purpose and relationships:* A separate component that does not depend on direct user requests for generating news. It runs once a day on a schedule via the `AWS EventBridge Scheduler`. The service makes a request to the `NCBI PubMed API`, parses data and filters out duplicates already stored in our database. The cleaned data is sent for processing to `AIService` and the obtained results are recorded in `News` table.
 
 - *AIService*
   - *Purpose and connections:* An isolated component with no direct connection to the API Gateway. It acts as an internal proxy for interacting with the `Gemini LLM API`. Three lambdas call it synchronously: `ProductHandler` (for translating and analyzing product descriptions, as well as validating user text input), `NewsService` (for simplifying articles) and `S3Service` (for visually checking images uploaded by users).
@@ -187,11 +187,11 @@ To ensure a consistent and intuitive user experience, a complete UX flow map was
 
 On both the first and subsequent launches of the app, the user is greeted with a *Splash Screen* featuring a beautiful animation of our logo and product name. If the user reinstalls the app on the same device, we retrieve all their information and start an animation asking them to wait a bit while their data is returned to the app.
 
-After the user has passed the splash screen and if this is their launch of the app, we display an *Onboarding Screen* that describes our most important features: scanning products, understanding their ingredients and properly sorting their packaging.
+After the user has passed the splash screen and if this is their first launch of the app, we display an *Onboarding Screen* that describes our most important features: scanning products, understanding their ingredients and properly sorting their packaging.
 
 Finally, after the user has seen all three onboarding screens, we transfer them to the *Main Screen*, which displays a variety of information.
 
-On the Main Screen, we display the number of scanned and sorted products, a daily tip from our team, news from PubMed and a list of recently scanned products, limited to the last five. Also, in the recently scanned products section, there's a *"See all"* button that takes the user to a screen of all scanned products. Moreover, user can access the *Product Details Screen* from the recent scans section by tapping on the product card. When a user first launches the app, the scanned and sorted product counters will be zero and the list of recently scanned products will be empty, with text prompting users to scan their first product.
+On the Main Screen, we display the number of scanned and sorted products, a daily tip from our team, news from PubMed and a list of recently scanned products, limited to the last five. Also, in the recently scanned products section, there's a *"See all"* button that takes the user to a screen of all scanned products. The user can also access the *Product Details Screen* from the recent scans section by tapping on the product card. When a user first launches the app, the scanned and sorted product counters will be zero and the list of recently scanned products will be empty, with text prompting users to scan their first product.
 
 ==== Main Screens
 
@@ -224,7 +224,7 @@ All empty states are supported by dedicated UX placeholders that clearly communi
 
 After the user first opens the *Product Scanning Flow*, they are presented with a system modal window requesting camera access and explaining why the app requires it. If the user denies access, we present them with our modal window, asking them to go to settings to grant camera access and continue using the scanning flow.
 
-When the app gains access to the camera, we open the *Scanner Screen*. On this screen, the user can start scanning by simply pointing the phone's camera at the product barcode, tap the *"Scan"* button if automatic scanning hasn't started, turn on the flashlight and proceed to the *Manual Input Screen*. On the Manual Input Screen, the user enters the product barcode and taps the "Find Product" button to start search.
+When the app gains access to the camera, we open the *Scanner Screen*. On this screen, the user can start scanning by simply pointing the phone's camera at the product barcode, tap the *"Scan"* button if automatic scanning hasn't started, turn on the flashlight and proceed to the *Manual Input Screen*. On the Manual Input Screen, the user enters the product barcode and taps the "Find Product" button to start the search.
 
 After the user either starts scanning by pointing the camera at the barcode or by entering the barcode on the manual input screen, a modal window for loading the product opens. If the product search reveals that the product was not found in the database, the loading modal window changes to a modal window stating that the product was not found. At this point, the user can either scan another product or add the product to our database.
 
@@ -262,7 +262,7 @@ If geolocation access is unavailable, the map opens using a preset default locat
 
 The map displays available recycling centers. If the user moves the map to another area, they can use the *"Search in this Area"* button to load recycling centers for the selected zone.
 
-Tapping on any recycling point opens an information window displaying the name of the point, its address, a list of accepted materials and buttons for building a route by foot, bike or car.
+Tapping on any recycling point opens an information window displaying the name of the point, its address, a list of accepted materials and buttons for building a route by foot, by bike or by car.
 
 After building a route, the user is shown travel time and total route distance. Two additional buttons are also available on this screen. The *"Sorted"* button notifies the app that the product has been successfully sorted, incrementing the counter of sorted products and updating user statistics. The *"Close"* button closes the route information and returns the user to the map.
 
@@ -285,7 +285,7 @@ The *Achievements Screen* displays the user's current progress across all availa
 
 The *Settings Screen* allows the user to manage the app's basic settings. This includes app permission settings (camera and location), the ability to change the interface language, access additional legal information, including the Terms of Use and Privacy Policy and the ability to delete an account if the user is logged in with an Apple ID.
 
-The last section is the *Help Screen*. Here, the user can find answers to frequently asked questions. If the information provided doesn't answer their question, they can contact the app's support team.
+The final section is the *Help Screen*. Here, the user can find answers to frequently asked questions. If the information provided doesn't answer their question, they can contact the app's support team.
 
 === User Interface Design Principles
 
@@ -392,7 +392,7 @@ Maintainability was a key architectural consideration throughout the development
     [File storage],
     [AWS S3 Bucket],
     [Low storage cost, ObjectCreated event generation],
-    [Requires implementation of pre-signed URL logic on the client],
+    [Requires implementation of presigned URL logic on the client],
 
     [Product Data],
     [Open Food Facts API],

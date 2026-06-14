@@ -54,12 +54,12 @@ The final sprint resulted in the creation of a full-scale map with detailed info
 == Structure of this paper
 This thesis is structured to provide both a comprehensive technical reference and an engaging narrative of the development process:
 
-*Domain Research and Analysis* (Chapter 3) examines the current FoodTech market based on a thorough analysis of competitors, global market research and the identification of functional gaps that justify the need for our comprehensive solution.
+*Domain Research and Analysis* (Chapter 2) examines the current FoodTech market based on a thorough analysis of competitors, global market research and the identification of functional gaps that justify the need for our comprehensive solution.
 
-*System Design and Architecture* (Chapter 4) details the complete design of our product, including software architecture decisions, the selection and rationale for the technology stack and considerations regarding user experience (UI/UX) design.
+*System Design and Architecture* (Chapter 3) details the complete design of our product, including software architecture decisions, the selection and rationale for the technology stack and considerations regarding user experience (UI/UX) design.
 
-*ReFood Implementation Process* (Chapter 5) describes the intensive three-month development process, documenting the goals of each sprint, technical challenges, results and retrospective findings.
+*ReFood Implementation Process* (Chapter 4) describes the intensive three-month development process, documenting the goals of each sprint, technical challenges, results and retrospective findings.
 
-*Validation and Testing* (Chapter 6) shows how we verified that our iOS mobile app met all initial business and technical requirements.
+*Validation and Testing* (Chapter 5) shows how we verified that our iOS mobile app met all initial business and technical requirements.
 
-*Conclusions and Future Perspectives* (Chapter 7) contains reflections on the project's final achievements, lessons learned during the engineering cycle and potential directions for future expansion of the app's functionality.
+*Conclusions and Future Perspectives* (Chapter 6) contains reflections on the project's final achievements, lessons learned during the engineering cycle and potential directions for future expansion of the app's functionality.

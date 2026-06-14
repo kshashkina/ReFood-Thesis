@@ -3,7 +3,7 @@
 #pagebreak()
 = #i18n("conclusion-title", lang:option.lang) <sec:conclusion>
 
-Creating the ReFood app was a culmination of our studies in the Software Engineering and Business Analysis program. This project allowed us to experience the entire software development process - from market research and architecture design to implementation, testing and publication. It's especially valuable that by the time we completed our thesis, ReFood had already been published in the App Store and was beginning to receive first user reviews. This allowed the project to move beyond purely academic work and become a real product that people can use in their lives.
+Creating the ReFood app was the culmination of our studies in the Software Engineering and Business Analysis program. This project allowed us to experience the entire software development process - from market research and architecture design to implementation, testing and publication. It's especially valuable that by the time we completed our thesis, ReFood had already been published in the App Store and was beginning to receive its first user reviews. This allowed the project to move beyond purely academic work and become a real product that people can use in their lives.
 
 == Project summary
 
@@ -11,7 +11,7 @@ The main goal of this project was to create a mobile application that would act 
 
 The developed solution includes functionality for scanning products, displaying information about their ingredients and providing recommendations for sorting packaging and finding recycling locations. Furthermore, the app supports product comparison, recommendations based on comparison results, a user profile, achievements and statistics.
 
-Thus, the result of our work is a fully functioning mobile product that successfully integrates the food transparency objectives for which the project was created. We have implemented a solution that guides users throughout the entire product experience, from selecting it to proper disposal of the packaging.
+Thus, the result of our work is a fully functioning mobile product that successfully addresses the food transparency objectives for which the project was created. We have implemented a solution that guides users throughout the entire product experience, from selecting it to proper disposal of the packaging.
 
 == Comparison with the initial objectives
 
@@ -39,7 +39,7 @@ Despite challenges, all key issues were successfully resolved during the develop
 
 Although the current version of ReFood already implements all the core functionality necessary to achieve its stated goals, during development we identified several promising areas for further development.
 
-*In the short term*, the app's development may involve introducing a premium subscription, expanding the achievement and gamification systems and adding a more detailed user nutrition analysis. Specifically, we plan to implement features for calculating calories, proteins, fats and carbohydrates consumed based on scanned food history.
+*In the short term*, the app's development may involve introducing a premium subscription, expanding the achievement and gamification systems and adding a more detailed user nutrition analysis. Specifically, we plan to implement features for calculating calories, proteins, fats and carbohydrates consumed based on the scanned food history.
 
 *Medium-term development* of the project involves expanding data sources and increasing the level of localization. One possible area is integration with Ukrainian retail chains to automatically obtain up-to-date product information. Furthermore, expanding the app's language support and developing partnerships with organizations working in the fields of waste recycling and sustainable consumption are also promising.
 

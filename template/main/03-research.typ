@@ -44,7 +44,7 @@ Uniquely, OFF also integrates environmental indicators: it calculates the Eco-Sc
 
 #figure(
   image("/resources/img/open_food_facts_ios.jpg", width: 15%),
-  caption: [Open Food Facts IOS interface.]
+  caption: [Open Food Facts iOS interface.]
 )
 
 === Yuka
@@ -77,7 +77,7 @@ Yuka's interface is very user-friendly: after scanning, you can see a short verd
 
 #figure(
   image("/resources/img/yuka.png", width: 15%),
-  caption: [Yuka IOS interface.]
+  caption: [Yuka iOS interface.]
 )
 
 === Fooducate
@@ -102,7 +102,7 @@ Fooducate is one of the first mobile apps in this area (launched in 2010 in the 
 
 #figure(
   image("/resources/img/fooducate.png", width: 30%),
-  caption: [Fooducate IOS interface.]
+  caption: [Fooducate iOS interface.]
 )
 
 === Junker
@@ -121,13 +121,13 @@ Junker is a specialized ecological application from Italy that solves the proble
 *Disadvantages*
 
 - Focused only on recycling and waste management
-- Does not provide food, nutrition, or health information
+- Does not provide food, nutrition or health information
 - Requires additional apps for complete product awareness
 - Limited support for regions outside Italy
 
 #figure(
   image("/resources/img/junker.png", width: 40%),
-  caption: [Junker IOS interface.]
+  caption: [Junker iOS interface.]
 )
 
 === Comparative Analysis
@@ -171,7 +171,7 @@ After conducting a review, we can identify needs that open up opportunities for 
 
 === Gap 1: Lack of Combined Health and Environmental Assessment
 
-None of the existing services provides a comprehensive assessment of both the impact on health and the impact on the environment at the same time. Consumers have to choose: either an application about the composition and calories, or separately about waste recycling. Even Yuka only partially takes into account environmental friendliness (organic) and Junker does not show anything about food quality at all. Therefore, ReFood has the potential to become an integrated solution that combines both perspectives.
+None of the existing services provides a comprehensive assessment of both the impact on health and the impact on the environment at the same time. Consumers have to choose: either an application about the composition and calories or separately about waste recycling. Even Yuka only partially takes into account environmental friendliness (organic) and Junker does not show anything about food quality at all. Therefore, ReFood has the potential to become an integrated solution that combines both perspectives.
 === Gap 2: Lack of Localization for Ukrainian Consumers
 
 Global applications do not always work well with Ukrainian products: absence in the database, no translation, irrelevance of some ratings (for example, Nutri-Score is not yet officially used on packaging in Ukraine @castle2025). There is a demand for a solution adapted to the local market. ReFood can use OpenFoodFacts data and its own content to focus on products from Ukrainian stores, including local brands.
