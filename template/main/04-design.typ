@@ -102,7 +102,7 @@ The container diagram details ReFood's high-level architecture, dividing the sys
 
 #figure(
   image("/resources/img/c4-container-diagram.png", width: 80%),
-  caption: [System Context Diagram - ReFood App Ecosystem],
+  caption: [System Container Diagram - ReFood App Ecosystem],
 )
 
 *Rationale for choosing a cloud infrastructure and analysis of technical trade-offs*
@@ -139,7 +139,7 @@ The component diagram illustrates the highest level of detail in ReFood's server
 
 #figure(
   image("/resources/img/c4-component-diagram.png", width: 80%),
-  caption: [System Context Diagram - ReFood App Ecosystem],
+  caption: [System Component Diagram - ReFood App Ecosystem],
 )
 
 *Functional description of system components and the logic of their interaction*
@@ -307,7 +307,52 @@ The ReFood user interface was designed with a focus on simplicity and minimizing
 
 - The interface was designed from the ground up to support multiple languages. All key navigation elements, user messages and app content are available in both Ukrainian and English, making the app more accessible to the target audience.
 
+== Deployment Topology and Infrastructure Resilience
 
+The ReFood platform runs on Amazon Web Services in the *eu-north-1 (Stockholm) region*. To simplify infrastructure management and reduce operational overhead, the platform uses a serverless architecture. This approach eliminates the need to maintain dedicated servers while still providing the flexibility to scale when needed.
+
+The mobile application communicates with the backend through a *REST API* hosted on *AWS API Gateway*. Whenever users perform actions in the application, the client sends HTTPS requests to the API, which then forwards them to the appropriate AWS Lambda functions for processing. On iOS, the application handles network communication through URLSession together with the AWS Amplify API Plugin.
+
+The platform stores its main application data in Amazon DynamoDB. This database offers high scalability and automatically replicates data across multiple availability zones, which helps maintain availability and reliability. For image storage, the platform uses Amazon S3. The service provides durable object storage and keeps redundant copies of uploaded files to protect against data loss.
+
+The serverless design removes the need for a dedicated load balancer. AWS API Gateway and AWS Lambda automatically distribute incoming requests and scale resources according to demand. As a result, the platform can handle changes in workload without requiring additional infrastructure management.
+
+The platform also uses *Amazon EventBridge* to support asynchronous event processing. By decoupling long-running operations from the main request flow, EventBridge helps maintain application responsiveness and improves overall system reliability.
+
+To secure access to cloud resources, the platform relies on *AWS Identity and Access Management*. IAM policies follow the principle of least privilege, ensuring that each service and component can access only the resources required for its operation.
+
+=== Logging and Monitoring
+
+*Server-side*
+
+To ensure system transparency and simplify the debugging process, a centralized log collection system based on the Amazon CloudWatch Logs service has been implemented. Each AWS Lambda microservice function is integrated with a separate log group to which system events, stack traces and results are automatically sent in real time.
+
+Monitoring of the ReFood infrastructure’s performance, productivity, and availability is implemented using the interactive AWS CloudWatch Dashboards control panel. The custom dashboard aggregates technical and system metrics from various cloud services into a single interface for continuous analysis of the platform’s status.
+
+#figure(
+  image("/resources/img/cloudwatch-dashboard.png", width: 80%),
+  caption: [AWS CloudWatch Dashboard monitoring dashboard for the ReFood system]
+)
+
+The main components of the monitoring system are:
+- *Duration & Latency Profiles*: tracking the average and maximum execution time of Lambda functions and the total API Gateway latency to monitor interface performance.
+- *Error Tracking*: error counters for immediate response to business logic failures.
+- *Resource Utilization*: monitoring of database resource consumption of all tables which allows for optimization of infrastructure costs.
+
+*Client-side*
+
+The ReFood iOS application implements client-side error monitoring using the *Sentry* platform. A centralized logging mechanism was introduced through the `AppLogger` abstraction and the `NetworkRunner` wrapper, which automatically capture unexpected runtime exceptions and network-related failures occurring on the mobile client.
+
+All API requests are executed through the NetworkRunner component. If an operation fails, the error is automatically forwarded to Sentry before being propagated to the application layer. So, this approach ensures that production issues can be investigated even when they cannot be reproduced locally on the test devices.
+
+#figure(
+  image("/resources/img/sentry.png", width: 80%),
+  caption: [Example of Client-Side Error Captured by Sentry]
+)
+
+=== Maintainability
+
+Maintainability was a key architectural consideration throughout the development of ReFood. The backend follows a microservice-based architecture, where each service is responsible for a single business domain and can be modified independently from the rest of the system. On the client side, the application is implemented using MVVM combined with Clean Architecture principles, providing a clear separation between presentation, business logic and data management layers. This approach simplifies testing, improves code readability and supports future feature development with minimal impact on existing functionality.
 
 == Technology Stack Summary
 

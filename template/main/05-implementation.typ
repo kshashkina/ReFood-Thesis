@@ -100,7 +100,7 @@ The ReFood application is built on the Model-View-ViewModel (MVVM) architectural
 
 
 == Critical Code Implementations
-This section presents the key Lambda function implementations that form the core of the ReFood backend. Each subsection highlights a critical component, its flow and the architectural decisions that bring business value.
+This section presents the key backend and iOS client implementations that form the core of the ReFood system.
 
 === User Handler: Implementation of User Services and Authentication
 
@@ -542,6 +542,166 @@ export const getSummary = async (event) => {
 - *Autonomic Ingestion:* Aggregation runs entirely in the background, requiring zero manual operations or content moderation.
 - *Low-Latency Serving:* Scientific article aggregation and AI translations are done ahead of time. Therefore client dashboard reads require only quick concurrent queries.
 
+=== iOS Scanner Service: Barcode Recognition and Session Control
+
+Barcode scanning functionality was implemented as a separate service based on the `AVFoundation` framework. To avoid coupling the user interface directly to the camera API, all core scanner operations were abstracted into the `BarcodeScanning` protocol. It defines methods for configuring the scanner, starting and stopping scanning, resetting the state and controlling the device's flashlight.
+
+The `BarcodeScannerService` manages an `AVCaptureSession` object and performs camera configuration in a separate background thread. By using this approach we avoid blocking the main thread and can maintain smooth UI operation. The scanner supports the most common barcode formats that are used on product packaging, like EAN-13, EAN-8, UPC-E and Code 128.
+
+One important implementation feature is protection against scanning of the same barcode multiple times. After successfully recognizing of the first code, the service sets an internal flag and ignores subsequent scans until the user initiates a new scan. This prevents sending multiple identical requests if the camera is still pointed at the same product.
+
+The `ScannerViewModel` controls the scanner's operation. After receiving a barcode, the ViewModel stores its value, stops the camera, and initiates an asynchronous download of product information:
+
+```swift
+private func bindScanner() {
+    scanner.onCodeScanned = { [weak self] code in
+        guard let self else { return }
+
+        // save the detected barcode
+        self.scannedCode = code
+        self.lastScannedBarcode = code
+
+        // stop the camera session to prevent duplicate scans
+        self.stopScanning()
+
+        // load product information asynchronously
+        Task {
+            await self.loadProduct(barcode: code)
+        }
+    }
+}
+```
+
+A separate `CameraPermissionService` component was also implemented. It is responsible for checking and requesting camera permissions. This allows the application to correctly handle various access scenarios, including allowed, denied and limited access to the camera.
+
+Appendix AB provides selected implementation fragments of the scanner service. The complete source code is available in the project GitHub repository.
+
+=== Map Flow: Geodata Loading and Route Requests
+
+The iOS app's map functionality was implemented using `MapKit` and a separate `MapViewModel` component. This component is responsible for loading recycling points, handling map movement, applying filters by material type, building routes and managing user interface state.
+
+To handle geolocation, separate services like `LocationService` and `LocationPermissionService` were implemented. The first one provides the user's current coordinates via `CLLocationManager` and the other one is responsible for checking and requesting geolocation permissions.
+
+Retrieving recycling points and building routes is performed through the `LocationRepository` layer, which hides the details of interaction with the backend API. The repository executes network requests, converts server responses into `MapPoint` and `MapRoute` models, and then passes them to the `ViewModel` for display on the map.
+
+One of the key solutions was managing the loading of geodata as the map moves. Instead of executing a new request every time the camera position changes, the app saves the coordinates of the last successfully loaded area and calculates the distance to the new map center. If the user has moved far enough, the app either automatically downloads new data in user tracking mode or displays a `"Search in this Area"` button, allowing the user to initiate a search. This approach significantly reduces the number of network requests and reduces the load on external APIs.
+
+```swift
+func onCameraChange(context: MapCameraUpdateContext) {
+    // store the current camera position and map center
+    currentMapCenter = context.region.center
+    currentCamera = context.camera
+
+    // initial data load when the map is opened for the first time
+    if lastFetchedCenter == nil {
+        fetchData(center: context.region.center)
+    } else if let lastCenter = lastFetchedCenter {
+
+        // calculate distance between the previous and current map centers
+        let distance = CLLocation(
+            latitude: context.region.center.latitude,
+            longitude: context.region.center.longitude
+        ).distance(from: CLLocation(
+            latitude: lastCenter.latitude,
+            longitude: lastCenter.longitude
+        ))
+
+        // trigger loading only when the user moved far enough
+        if distance > MapConstants.fetchThreshold {
+
+            // automatically refresh points while following user location
+            if trackingMode != .none {
+                fetchData(center: context.region.center)
+
+            // otherwise show "Search in this Area" button
+            } else {
+                withAnimation(.spring()) {
+                    showSearchButton = true
+                }
+            }
+        }
+    }
+}
+```
+
+Route construction is also performed asynchronously. Before sending a request, the app checks for an internet connection and the user's current geolocation. After successfully receiving the route, the ViewModel saves it and automatically adjusts the camera position so that the entire route is within the user's view.
+
+Appendix AB provides selected implementation fragments of the map service. The complete source code is available in the project GitHub repository.
+
+=== SwiftData Scan History and Local Metrics: Offline-First Persistence
+
+The iOS app's scan history was implemented using an offline-first approach using `SwiftData`. This solution allows users to view previously scanned products even without an internet connection, which is especially important in supermarkets where mobile networks can be unstable.
+
+The history is stored using the `ScannedHistoryModel` model, annotated with the `@Model` macro. It stores the product's unique ID, scan date, favorite status, name, brand, image link and serialized product data. The id field is marked as unique, so rescanning the same product doesn't create a duplicate but updates the existing record.
+
+Local storage is handled in the `HistoryRepository` layer. This approach hides `SwiftData` details from the `ViewModel` and maintains a clean separation of concerns.
+
+In addition to history, local user metrics are also stored on the client. This is accomplished using the `MetricsRepository`, which stores scan counters, sort counters, streak counters and achievement status.
+
+The `ScannerViewModel` is one example of a point where various types of data are updated after a product is successfully loaded. In this flow, the application increments the local scan counter, saves the product to local history and additionally sends a scan event to the backend:
+
+```swift
+self.product = fetchedProduct
+
+// update local scan metric for profile and achievements
+metricsRepository.incrementScannedCount()
+
+Task {
+    // save product locally for offline scan history
+    try? await historyRepository.saveProduct(fetchedProduct, isFavorite: false)
+
+    // record scan on backend for server-side history and statistics
+    try? await productRepository.recordScan(product: fetchedProduct)
+}
+```
+
+It's important to note that this fragment is just one example of data recording on the client. A similar approach is used in other parts of the application: when manually entering a barcode, adding new products, changing the status of a favorite product and confirming successful sorting.
+
+Within `HistoryRepositoryImpl`, the product is first encoded as `JSON` data, after which the repository checks whether a record with the same barcode already exists. If the record already exists, the scan date, product details, name, brand and image are updated. If the product is being scanned for the first time, a new record is created in the local database.
+
+Appendix AB provides selected implementation fragments of the local history. The complete source code is available in the project GitHub repository.
+
+=== iOS Authentication Flow: Anonymous Session and Apple ID Linking
+
+ReFood's authorization system was implemented so that users can start using the app without mandatory registration. Instead of creating an account on first launch, the app automatically creates an anonymous user, which allows access to all the app's core features.
+
+The authorization logic is divided between several components. `AmplifyAuthRepository` handles interactions with `AWS Cognito` and `Apple Sign-In`, `UserRepositoryImpl` makes requests to the backend API, and separate `Use Case` components manage anonymous user registration, Apple ID linking and data synchronization.
+
+During the first app launch, anonymous user registration occurs. The client receives the `Cognito identityId`, combines it with the stored `deviceId` and sends this data to the backend. As a result, the server creates or updates an anonymous user session, which is used to store scan history, user preferences and statistics until the Apple ID is linked.
+
+Particular attention was paid to the app reinstallation scenario. To achieve this, the `device ID` is stored in the `Keychain`, which is not cleared when the app is uninstalled. During the next launch, the client detects the existing device ID and initiates a user data sync. This allows scan history, favorites, achievements, and user metrics to be restored even without first registering with an Apple ID.
+
+When the user selects `Apple ID sign-in`, the app initiates the standard authorization process through AWS Amplify. After successful sign-in, the client receives a `Cognito ID Token` and passes it, along with the device ID, to the backend to link the anonymous account to the Apple profile:
+
+```swift
+func execute() async throws {
+
+    // perform Apple Sign-In through AWS Amplify and receive Cognito ID token
+    let idToken = try await authRepository.signInWithApple()
+
+    // get persistent device identifier stored in Keychain
+    let deviceId = deviceIDProvider.getDeviceID()
+
+    // send token and device ID to backend to link anonymous data with Apple account
+    try await userRepository.linkAccount(
+        idToken: idToken,
+        deviceId: deviceId
+    )
+
+    // save local flag that the account has been linked with Apple ID
+    localStorage.isAppleLinked = true
+
+    // synchronize scans, favorites, achievements and metrics in the background
+    Task(priority: .background) {
+        await syncUseCase.execute()
+    }
+}
+```
+
+After linking the account, the app initiates background synchronization of user data. This synchronization process downloads scan history, favorites, achievements, and user metrics from the backend, merges the data with the local app state, and stores it on the device. This allows the user to continue using the app on a new device without losing their progress.
+
+Appendix AB provides selected implementation fragments of the authentication service. The complete source code is available in the project GitHub repository.
+
 == Testing Approach and Quality Assurance Measures
 
 This section describes in detail the testing methods and tools that were applied to the entire project code base to ensure the stability and reliability of the client and server components of the system.
@@ -570,6 +730,8 @@ The core business logic of the server-side is covered by unit tests using the *V
 - *Input data validation:* Verifying the validation of required parameters and their format before processing.
 
 - *Testing positive and negative scenarios:* Each logic is covered by tests for both the expected successful outcome and failure scenarios like database unavailability, AI service errors and invalid input data.
+
+In total, 374 unit tests were implemented to verify the Lambda business logic. All 374 tests passed successfully, confirming the stability and high reliability of the serverless backend.
 
 *Alternative Approaches and Rationale*
 
@@ -664,9 +826,17 @@ The ReFood app deployment is based on AWS's public global infrastructure, where 
 
 To automate the deployment of the application server-side components, a separate GitHub Actions pipeline has been set up for each Lambda function. Each workflow triggers automatically when changes are pushed to the `main` branch - but only if the changes affect the directory of the corresponding service. This means that changes in one service do not trigger a redeployment of others, which minimizes the number of unnecessary deployment operations.
 
-Each pipeline consists of four sequential steps: fetching code from the repository, installing production dependencies, packaging the function into a ZIP archive and uploading the new code to AWS Lambda via the AWS CLI. AWS access credentials are stored as encrypted GitHub Secrets and do not appear in text anywhere in the code.
-This approach ensures a fully automated and reproducible deployment process: any code change merged into the main branch is automatically deployed to the production environment without manual intervention.
+Each pipeline consists of four sequential steps: fetching code from the repository, running automated unit tests, installing production dependencies, packaging the function into a ZIP archive and uploading the new code to AWS Lambda via the AWS CLI. This approach ensures a fully automated and reproducible deployment process: any code change merged into the main branch is automatically deployed to the production environment without manual intervention.
 
+#figure(
+  image("/resources/img/github-deploy.png", width: 80%),
+  caption: [GitHub Actions CI/CD workflows for ReFood serverless microservices],
+)
+
+CI/CD Pipeline Features:
+- *Path-Based Triggering*: Workflows utilize precise directory filters (paths), ensuring that only modified Lambda services are tested and deployed, optimizing overall build time.
+- *Automated Quality Check*: Before any deployment, the pipeline automatically run appropriate tests via Vitest. If any of the server-side unit tests fail, the workflow terminates immediately.
+- *Secure Environment Management*: AWS access credentials are stored as encrypted GitHub Secrets or inside Lambda environment variables and do not appear in text anywhere in the code.
 
 === Client-side deployment
 
@@ -683,3 +853,21 @@ The generated .ipa file was exported directly from Xcode and uploaded to the App
 *App configuration in App Store Connect*
 
 At the final stage, in parallel with testing, the application's product page was prepared for release. In the App Store Connect account, text descriptions and keywords were filled in, real screenshots of the application screens were uploaded, and the security section was configured.
+
+== API Documentation
+
+Since the backend is built on independent AWS Lambda functions managed by AWS API Gateway, the client interaction contract is defined at the cloud infrastructure level. To ensure full synchronization between the gateway, the iOS app, and the endpoint descriptions, a unified specification was developed and integrated directly into the GitHub repository.
+
+The consolidated route matrix, which reflects interactions with users, products, geodata, and media files via the corresponding Lambda handlers, is presented below:
+
+#figure(
+  image("/resources/img/api-matrix.png", width: 80%),
+  caption: [REST API Routing Matrix for ReFood],
+)
+
+Documentation components and implemented standards:
+- *API Reference (`API_DOC.md`):* an integrated Markdown specification describing endpoint behavior, HTTP methods, required path parameters, JSON request/response structures and error handling schemes.
+- *Distributed REST entry points:* routes are clearly separated by domain (`/product/*` for products, /users/* for profiles and gamification, /map/* for maps), which reduces the interdependence of services.
+- *Flexible client integration:* a direct link to the documentation in the README.md file allows iOS developers to interact with the backend independently and build new features in parallel without delays.
+
+The full text of the API specifications is provided in Appendix AD.
