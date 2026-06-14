@@ -39,7 +39,7 @@ Despite challenges, all key issues were successfully resolved during the develop
 
 Although the current version of ReFood already implements all the core functionality necessary to achieve its stated goals, during development we identified several promising areas for further development.
 
-*In the short term*, the app's development may involve introducing a premium subscription, expanding the achievement and gamification systems, and adding a more detailed user nutrition analysis. Specifically, we plan to implement features for calculating calories, proteins, fats, and carbohydrates consumed based on scanned food history.
+*In the short term*, the app's development may involve introducing a premium subscription, expanding the achievement and gamification systems and adding a more detailed user nutrition analysis. Specifically, we plan to implement features for calculating calories, proteins, fats and carbohydrates consumed based on scanned food history.
 
 *Medium-term development* of the project involves expanding data sources and increasing the level of localization. One possible area is integration with Ukrainian retail chains to automatically obtain up-to-date product information. Furthermore, expanding the app's language support and developing partnerships with organizations working in the fields of waste recycling and sustainable consumption are also promising.
 

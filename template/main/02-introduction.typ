@@ -56,7 +56,7 @@ This thesis is structured to provide both a comprehensive technical reference an
 
 *Domain Research and Analysis* (Chapter 3) examines the current FoodTech market based on a thorough analysis of competitors, global market research and the identification of functional gaps that justify the need for our comprehensive solution.
 
-*System Design and Architecture* (Chapter 4) details the complete design of our product, including software architecture decisions, the selection and rationale for the technology stack, and considerations regarding user experience (UI/UX) design.
+*System Design and Architecture* (Chapter 4) details the complete design of our product, including software architecture decisions, the selection and rationale for the technology stack and considerations regarding user experience (UI/UX) design.
 
 *ReFood Implementation Process* (Chapter 5) describes the intensive three-month development process, documenting the goals of each sprint, technical challenges, results and retrospective findings.
 

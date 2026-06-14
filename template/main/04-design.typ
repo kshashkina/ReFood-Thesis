@@ -26,25 +26,25 @@ The following sections detail how the identified functional and non-functional r
 
   -- Architectural design: The server-side handles content generation asynchronously by scheduling daily Amazon EventBridge events that fill the `News` table in DynamoDB. Scanned products are stored in a separate `Scans` table and are recorded with every product search. The `ProductsFavorites` table is filled separately when the like button is clicked on the client. In this way, we divide the tables into separate logical components that are independent and easy to modify and scale.
 
-- *Seamless Authentication and Data Portability*: Users must be able to log in via Apple ID to securely save their data. If the app is deleted and reinstalled, the user's entire scan history, favorites, and statistics must be fully restored upon login.
+- *Seamless Authentication and Data Portability*: Users must be able to log in via Apple ID to securely save their data. If the app is deleted and reinstalled, the user's entire scan history, favorites and statistics must be fully restored upon login.
 
   -- Architectural Decision: We implemented a dual-identity model using the AWS Cognito Identity Pool for temporary anonymous device tracking and the AWS Cognito User Pool for authentication via Apple ID. The backend service uses a merge logic to combine the device associated history (anonymous user) with the persistent Apple credentials (registered user) without data loss.
 
 - *Gamification & Progress Tracking*: The system must track user interactions, displaying a daily streak, scanned/sorted counts and an Achievements tab with 8 distinct unlockable milestones.
 
-  -- Architectural Decision: User metric updates are processed in an asynchronous way that managed by a dedicated Lambda function - `MetricsService` to avoid blocking core user interactions. This service analyzes incoming action signals, calculates and updates data in the `UserMetrics` table, and evaluates achievements based on a static configuration of achievements.
+  -- Architectural Decision: User metric updates are processed in an asynchronous way that managed by a dedicated Lambda function - `MetricsService` to avoid blocking core user interactions. This service analyzes incoming action signals, calculates and updates data in the `UserMetrics` table and evaluates achievements based on a static configuration of achievements.
 
 - *Community Crowdsourcing (Add and Edit)*: If a product is missing or contains incorrect/poor-quality data (e.g., bad photos), the user must be able to submit new information or edits via a form for backend validation.
 
   -- Architectural Decision: We implemented an AI validation process that runs when a user fills out a form, using `AIService` to check for suspicious, unusual or invalid entered data. Attached images are transferred to a temporary S3 bucket, which publishes `ObjectCreated` triggers to EventBridge, which invokes the AI before the records are moved to the public bucket. Thus, the AI result for the provided image is stored for 24 hours in `UploadJobs` and are pinged by the client until a REJECT or APPROVED status is received.
 
-- *Smart Product Comparison*: The app must support a "Compare Mode" where a user can scan a second product, confirm the comparison, and view a side-by-side UI of nutrients. An AI analysis must determine and explain the "winner."
+- *Smart Product Comparison*: The app must support a "Compare Mode" where a user can scan a second product, confirm the comparison and view a side-by-side UI of nutrients. An AI analysis must determine and explain the "winner."
 
   -- Architectural Decision:мThe comparison mechanism uses `AIService`, which sends comparison requests via Vertex AI (Gemini LLM), compares the features of two products and returns the comparison results to the client.
 
 *Non-Functional Requirements and Corresponding Architectural Decisions*
 
-- *Availability and Offline Data*: Users frequently experience poor cellular network connectivity inside supermarkets. The application must provide continuous access to previously scanned items, favorites, and gamification progress regardless of the current internet connection.
+- *Availability and Offline Data*: Users frequently experience poor cellular network connectivity inside supermarkets. The application must provide continuous access to previously scanned items, favorites and gamification progress regardless of the current internet connection.
 
   -- Architectural Decision: To ensure uninterrupted access to data, an “Offline-First” approach has been implemented using the native SwiftData framework. All scanned products and interaction history are immediately stored in the device's local database using `@Model` macros. The user interface is subscribed to local data via the `@Query` macro. This means that the app always reads data from the phone's memory (which works instantly and without an internet connection), so the user can always view their scan history even in “airplane mode”.
 
@@ -84,7 +84,7 @@ To ensure the application'ss business functionality we conducted an analysis of 
 - *Gemini LLM API*
   - *Selected option:*  Using Gemini models via the API to translate complex ingredients into understandable language, detect hidden sugars, compare two products and protect the system against prompt injection and inappropriate content when users add products.
   - *Alternatives:* OpenAI services (GPT-4o) or our own LLM.
-  - *Comparison:* OpenAI (GPT) has a higher token cost, which is critical for us given the limited budget for our diploma project. Deploying our own LLM model would require constantly running server resources and thus, the maintenance cost would exceed several hundred dollars per month. The Gemini service provided the best free request limit for development, high speed generation of structured JSON response, processing of both text and images, and excellent performance with Ukrainian language.
+  - *Comparison:* OpenAI (GPT) has a higher token cost, which is critical for us given the limited budget for our diploma project. Deploying our own LLM model would require constantly running server resources and thus, the maintenance cost would exceed several hundred dollars per month. The Gemini service provided the best free request limit for development, high speed generation of structured JSON response, processing of both text and images and excellent performance with Ukrainian language.
 
 - *NCBI PubMed API*
   - *Selected option:* Integration with the official API of the U.S. National Center for Biotechnology Information for the daily automatic collection of the latest medical and nutritional articles.
@@ -98,7 +98,7 @@ To ensure the application'ss business functionality we conducted an analysis of 
 
 == C4 Container Diagram
 
-The container diagram details ReFood's high-level architecture, dividing the system into logical functional blocks that are deployed independently. This level of architectural design reflects the division of responsibilities among the mobile client, the serverless cloud infrastructure and data storage systems, and defines the technical protocols for their interaction.
+The container diagram details ReFood's high-level architecture, dividing the system into logical functional blocks that are deployed independently. This level of architectural design reflects the division of responsibilities among the mobile client, the serverless cloud infrastructure and data storage systems and defines the technical protocols for their interaction.
 
 #figure(
   image("/resources/img/c4-container-diagram.png", width: 80%),
@@ -239,15 +239,15 @@ If the user decides to add the product to our database, we open the *Product Add
 
 If the product scan is successful, the user is presented with a *Product Preview Screen*, which confirms whether the product found is indeed the one they wanted to retrieve from the database. At this point, the user can either return to the scanner screen and scan another product or confirm that the product found is correct.
 
-After confirming, the user is transferred to the *Product Details Screen*. This screen displays full product information, including ingredients, categories, calories, and other nutritional facts, as well as a detailed AI analysis of the product and a description of its packaging. Additionally, a *"Share"* button is located at the top of the screen, allowing the user to share the product found.
+After confirming, the user is transferred to the *Product Details Screen*. This screen displays full product information, including ingredients, categories, calories and other nutritional facts, as well as a detailed AI analysis of the product and a description of its packaging. Additionally, a *"Share"* button is located at the top of the screen, allowing the user to share the product found.
 
-From the product details screen, the user can navigate to three main user flows: *Product Edit Flow*, *Comparison Flow*, and *Sorting Flow*.
+From the product details screen, the user can navigate to three main user flows: *Product Edit Flow*, *Comparison Flow* and *Sorting Flow*.
 
 If the user believes any product information is incorrect or incomplete, they can click the *Pencil Icon* at the top of the screen. This action takes the user to the *Product Edit Flow*, where they can edit or supplement the product information.
 
-If the user wants to compare a product with another, they can tap the comparison button located at the bottom of the screen. This reopens the *Scanner Screen*, allowing the user to scan a second product. After successfully finding the second product, the app displays the *Product Preview Screen* again, and then, upon confirmation, takes the user to the *Comparison Screen*. On this screen, products are compared by Nutri-Score, Eco-Score, and nutrients. Additionally, the user can run an AI analysis and receive a recommendation on which product is the preferable choice.
+If the user wants to compare a product with another, they can tap the comparison button located at the bottom of the screen. This reopens the *Scanner Screen*, allowing the user to scan a second product. After successfully finding the second product, the app displays the *Product Preview Screen* again and then, upon confirmation, takes the user to the *Comparison Screen*. On this screen, products are compared by Nutri-Score, Eco-Score and nutrients. Additionally, the user can run an AI analysis and receive a recommendation on which product is the preferable choice.
 
-The last scenario available from the product details screen is related to packaging sorting. In the packaging information section, there is a *"How to Sort"* button. Tapping it takes the user to the *Recycling Screen*. This screen displays more detailed information about the product packaging, the materials it is made from, and instructions on how to prepare it for recycling. Below the description of all packaging components is a "Find Recycling Point" button, which takes the user to the Map Flow.
+The last scenario available from the product details screen is related to packaging sorting. In the packaging information section, there is a *"How to Sort"* button. Tapping it takes the user to the *Recycling Screen*. This screen displays more detailed information about the product packaging, the materials it is made from and instructions on how to prepare it for recycling. Below the description of all packaging components is a "Find Recycling Point" button, which takes the user to the Map Flow.
 
 ==== Map Flow
 
@@ -327,7 +327,7 @@ To secure access to cloud resources, the platform relies on *AWS Identity and Ac
 
 To ensure system transparency and simplify the debugging process, a centralized log collection system based on the Amazon CloudWatch Logs service has been implemented. Each AWS Lambda microservice function is integrated with a separate log group to which system events, stack traces and results are automatically sent in real time.
 
-Monitoring of the ReFood infrastructure’s performance, productivity, and availability is implemented using the interactive AWS CloudWatch Dashboards control panel. The custom dashboard aggregates technical and system metrics from various cloud services into a single interface for continuous analysis of the platform’s status.
+Monitoring of the ReFood infrastructure’s performance, productivity and availability is implemented using the interactive AWS CloudWatch Dashboards control panel. The custom dashboard aggregates technical and system metrics from various cloud services into a single interface for continuous analysis of the platform’s status.
 
 #figure(
   image("/resources/img/cloudwatch-dashboard.png", width: 80%),
