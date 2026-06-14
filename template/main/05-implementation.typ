@@ -867,7 +867,7 @@ The consolidated route matrix, which reflects interactions with users, products,
 
 Documentation components and implemented standards:
 - *API Reference (`API_DOC.md`):* an integrated Markdown specification describing endpoint behavior, HTTP methods, required path parameters, JSON request/response structures and error handling schemes.
-- *Distributed REST entry points:* routes are clearly separated by domain (`/product/*` for products, /users/* for profiles and gamification, /map/* for maps), which reduces the interdependence of services.
+- *Distributed REST entry points:* routes are clearly separated by domain (`/product/*` for products, `/users/*` for profiles and gamification, `/map/*` for maps), which reduces the interdependence of services.
 - *Flexible client integration:* a direct link to the documentation in the README.md file allows iOS developers to interact with the backend independently and build new features in parallel without delays.
 
 The full text of the API specifications is provided in Appendix AD.
